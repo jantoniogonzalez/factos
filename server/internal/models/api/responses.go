@@ -1,13 +1,20 @@
 package api
 
 import (
-	"time"
+	"github.com/jantoniogonzalez/factos/internal/models"
 )
 
+type DefaultResponse struct {
+	Code    int
+	Message string
+}
+
 type FactoResponse struct {
-	Code          int
-	MatchId       string
-	GoalsHomeTeam int32
-	GoalsAwayTeam int32
-	LastModified  time.Time
+	Code  int
+	Facto models.Facto
+}
+
+type ErrorResponse struct {
+	Code    int
+	Message string
 }
