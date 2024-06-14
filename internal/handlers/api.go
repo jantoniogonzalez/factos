@@ -13,10 +13,15 @@ func Handlers(router chi.Router) {
 		router.Post("/new", CreateNewFacto) // CREATE a new factos
 
 		router.Route("/{factoId}", func(router chi.Router) {
-			router.Get("/")    // GET facto with id
-			router.Put("/")    // EDIT an existing facto
-			router.Delete("/") // DELETE an existing facto
+			router.Get("/", GetFactoById)   // GET facto with id
+			router.Put("/", EditFacto)      // EDIT an existing facto
+			router.Delete("/", DeleteFacto) // DELETE an existing facto
 
 		})
+
+		// router.Route("/{userId}", func (router chi.Router) {
+		// 	router.Get("/", GetFactosByUserId)
+		// 	router.Get("/correct", GetCorrectFactosByUserId)
+		// })
 	})
 }

@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ConnectDB() {
+func ConnectDB() (*pgxpool.Pool, error) {
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Error(err)
@@ -18,4 +18,5 @@ func ConnectDB() {
 	}
 
 	defer dbpool.Close()
+	return dbpool, err
 }
