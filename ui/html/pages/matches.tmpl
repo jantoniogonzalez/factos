@@ -1,0 +1,11 @@
+{{ define "main"}}
+<div class="fixtures-grid">
+    {{if .Fixtures}}
+    {{ range .Fixtures }}
+        {{ template "fixture" . }}
+    {{end}}
+    {{else}}
+    <p>No matches found.</p>
+    {{end}}
+</div>
+{{end}}

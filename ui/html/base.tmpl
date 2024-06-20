@@ -1,0 +1,28 @@
+{{ define "base"}}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Factos</title>
+        <link rel="stylesheet" href="/ui/static/css/main.css">
+        <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            {{ template "nav" . }}
+            {{ if .Subnav }}
+                {{ template "subnav" .}}
+            {{end}}
+        </header>     
+        <main>
+           {{ template "main" .}} 
+        </main>
+    </body>
+    <footer>
+        Developed by <a href="https://github.com/jantoniogonzalez/factos">jantoniogonzalez</a>
+    </footer>
+</html>
+{{end}}

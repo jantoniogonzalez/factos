@@ -1,0 +1,168 @@
+:root {
+    --white:#fff8f0;
+    --black: #413054;
+    --primary: #298cfe;
+    --secondary: #e9008b;
+    --green: #53DD6C;
+    --red: #ff5400;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Fira Sans Condensed", sans-serif
+}
+
+html, body {
+    height: 100%;
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: var(--white);
+}
+
+main {
+    min-height: calc(100vh - 345px);
+    margin-top: 10px;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+nav, main, footer {
+    padding: 2px calc((100% - 992px) / 2) 0;
+}
+
+@media screen and (max-width: 1000px) {
+    nav, main, footer {
+        padding: 2px calc((100% - 800px) / 2) 0;
+    }
+}
+
+h1 {
+    font-size: 32px !important;
+    font-style: italic;
+}
+
+h1:hover{
+    font-style: normal;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+    color: var(--black);
+}
+
+a:hover {
+    color: var(--secondary);
+}
+
+nav {
+    display: flex;
+    gap: 20px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    .links a {
+        margin-right: 1em;
+    }
+    box-shadow: 0px 1px 2px var(--black);
+}
+
+.main-nav {
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--black);
+    a {
+        color: var(--white);
+    }
+    a:hover {
+        color: var(--primary);
+    }
+    box-shadow: none;
+}
+
+.primary {
+    color: var(--primary)
+}
+
+.secondary {
+    color: var(--secondary)
+}
+
+button {
+    text-decoration: none;
+    box-decoration-break: none;
+    width: fit-content;
+    border: none;
+    border-radius: 10px;
+    padding: 0.5em 1em;
+    background-color: var(--primary);
+    color: var(--white);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+button:hover{
+    background-color: var(--secondary);
+}
+
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    position: absolute;
+    height: 100%;
+    justify-content: center;
+}
+
+.fixture-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* border: 1px solid var(--primary); */
+    border-radius: 10px;
+    box-shadow: 0px 1px 1px var(--black);
+    background-color: var(--black);
+    color: var(--white);
+    padding: 5px;
+    position: relative;
+    row-gap: 10px;
+    .date {
+        position: relative;
+        font-size: 16px;
+     }
+    .fixture {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        column-gap: 30px;
+        width: 100%;
+        .team {
+            font-weight: bold;
+        }
+    }
+}
+
+.fixtures-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px 5px;
+}
+
+.logo {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.facto-button {
+    padding: 0em 1em;
+}
+
+
+footer {
+    height: 60px;
+    text-align: center;
+}
+
+

@@ -1,0 +1,12 @@
+{{define "subnav"}}
+<nav>
+    <div>
+        <a class="tournament" href="/{{ .TournamentId}}">{{ .Tournament}}</a>
+    </div>
+    <div class="links">
+        <a href="/{{ .TournamentId}}/results">Results</a>
+        <a href="/{{ .TournamentId}}/upcoming"> Upcoming Matches</a>
+        <a href="/{{ .TournamentId}}/predictions">My Predictions</a>
+    </div>
+</nav>
+{{ end }}

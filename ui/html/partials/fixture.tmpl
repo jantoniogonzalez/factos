@@ -1,0 +1,19 @@
+{{define "fixture"}}
+<div class="fixture-container">
+    <div class="date">{{ .Date }}</div>
+    <div class="fixture">
+        <div class="team">{{ .HomeTeam }}</div>
+        {{if .Result}}
+        <div>{{.Result}}</div>
+        {{else}}
+        <div>VS</div>
+        {{end}}
+        <div class="team">{{ .AwayTeam}}</div>
+    </div>
+    {{if .Facto}}
+    <button class="facto-button">View <span class="logo">FACTOS</span></button>
+    {{else}}
+    <button class="facto-button">View <span class="logo">FACTOS</span></button>
+    {{end}}
+</div>
+{{end}}
