@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"text/template"
+
+	"github.com/jantoniogonzalez/factos/internal/models"
 )
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -34,4 +36,14 @@ func (app *application) render(w http.ResponseWriter, pages []string, data *temp
 		app.serverError(w, err)
 		return
 	}
+}
+
+func (app *application) checkUserExists(googleId string) *models.User {
+	user, err := app.users.Get(googleId)
+
+	if err != nil {
+		return nil
+	}
+
+	return user
 }

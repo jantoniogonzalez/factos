@@ -1,5 +1,5 @@
 :root {
-    --white:#fff8f0;
+    --white:#F0EDEE;
     --black: #413054;
     --primary: #298cfe;
     --secondary: #e9008b;
@@ -41,11 +41,6 @@ nav, main, footer {
 
 h1 {
     font-size: 32px !important;
-    font-style: italic;
-}
-
-h1:hover{
-    font-style: normal;
 }
 
 a {
@@ -152,7 +147,16 @@ button:hover{
 
 .logo {
     font-weight: bold;
-    font-style: italic;
+    .secondary {
+       font-style: italic; 
+    }
+    .secondary:hover{
+        font-style: normal;
+    }
+
+    .primary:hover {
+        font-style: italic;
+    }
 }
 
 .facto-button {
@@ -165,4 +169,43 @@ footer {
     text-align: center;
 }
 
+input {
+    border: none;
+    border-radius: 5px;
+    background-color: var(--white);
+    padding: 4px;
+    font-size: 18px;
+}
 
+input:focus {
+    outline: 1px solid var(--primary);
+}
+
+dialog {
+    border: none;
+    position:absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -150px;
+    margin-top: -150px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 10px;
+    width: 300px;
+    height: 150px;
+    box-shadow: 1px 1px 1px var(--black);
+    form {
+        display: flex;
+        flex-direction: column;
+        row-gap: 10px;
+        width: inherit;
+    }
+    fieldset {
+        border: none;
+        display: flex;
+        flex-direction: column;
+    }
+}

@@ -31,6 +31,8 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/authenticate", dynamic.ThenFunc(app.auth))
 	router.Handler(http.MethodGet, "/auth/google/callback", dynamic.ThenFunc(app.authCallback))
+	router.Handler(http.MethodGet, "/signup", dynamic.ThenFunc(app.viewSignUp))
+	router.Handler(http.MethodPost, "/signup", dynamic.ThenFunc(app.postSignUp))
 
 	return router
 }

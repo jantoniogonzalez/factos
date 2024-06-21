@@ -21,7 +21,8 @@ import (
 type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
-	factos         *models.Factos
+	factos         *models.FactosModel
+	users          *models.UserModel
 	oauthConfig    *oauth2.Config
 	sessionManager *scs.SessionManager
 	formDecoder    *form.Decoder
@@ -71,6 +72,8 @@ func main() {
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		oauthConfig:    conf,
+		factos:         &models.FactosModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		sessionManager: sessionManager,
 		formDecoder:    formDecoder,
 	}
