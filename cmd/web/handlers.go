@@ -3,17 +3,27 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/jantoniogonzalez/factos/internal/models"
+	"github.com/jantoniogonzalez/factos/internal/validator"
 )
 
-type GoogleData struct {
+type googleData struct {
 	Id             string `form:"id"`
 	Email          string `form:"email"`
 	Verified_email bool   `form:"verified_email"`
 	Picture        string `form:"picture"`
+}
+
+type userCreateForm struct {
+	Username string
+	GoogleId string
+	validator.Validator
 }
 
 func (app *application) viewLandingPage(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +108,7 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Couldn't get userdata")
 	}
 
-	googleData := &GoogleData{}
+	googleData := &googleData{}
 
 	err = json.Unmarshal(userData, googleData)
 	if err != nil {
@@ -112,12 +122,13 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 
 	if user == nil {
 		// New Account
-		http.Redirect(w, r, "/signup", http.StatusSeeOther)
+		http.Redirect(w, r, "/signup?user="+googleData.Id, http.StatusSeeOther)
 		return
 	}
 
 	// Login
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+	// Create session
 }
 
 func (app *application) viewSignUp(w http.ResponseWriter, r *http.Request) {
@@ -127,13 +138,51 @@ func (app *application) viewSignUp(w http.ResponseWriter, r *http.Request) {
 		"./ui/html/pages/signup_modal.tmpl",
 	}
 
-	data := &templateData{
-		Subnav: false,
-	}
+	data := app.newTemplateData(r, false)
+	data.Form = userCreateForm{}
 
 	app.render(w, files, data)
 }
 
 func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
+	// Read postbody
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
+	username := r.Form.Get("Username")
+	fmt.Printf("Username entered is: %v", username)
+	googleId := r.URL.Query().Get("user")
+
+	userForm := userCreateForm{
+		Username: username,
+		GoogleId: googleId,
+	}
+
+	userForm.ValidateField(validator.NotEmpty(userForm.Username), "username", "This field cannot be blank")
+	userForm.ValidateField(validator.MaxCharacters(userForm.Username, 32), "username", "This field cannot exceed 32 characters")
+
+	if !userForm.Valid() {
+		data := app.newTemplateData(r, false)
+		data.Form = userForm
+		app.render(w, []string{"user_model.tmpl"}, data)
+		return
+	}
+
+	// make db calls
+	err = app.users.Insert(username, googleId)
+	if err != nil {
+		// Check if user is unique
+		if errors.Is(err, models.ErrDuplicateUsername) {
+			userForm.AddFieldError("username", "This username is already in use")
+			data := app.newTemplateData(r, false)
+			data.Form = userForm
+			app.render(w, []string{"user_model.tmpl"}, data)
+		}
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

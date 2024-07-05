@@ -3,7 +3,10 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 type User struct {
@@ -17,22 +20,23 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (m *UserModel) Insert(username, googleId string) (int, error) {
+func (m *UserModel) Insert(username, googleId string) error {
 	query := `INSERT INTO Users values(username, googleId, created)
 	values(?, ?, UTC_TIMESTAMP());`
 
-	res, err := m.DB.Exec(query, username, googleId)
+	_, err := m.DB.Exec(query, username, googleId)
 
 	if err != nil {
-		return 0, err
+		var mySQLError *mysql.MySQLError
+		if errors.As(err, &mySQLError) {
+			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "uc_users_username") {
+				return ErrDuplicateUsername
+			}
+		}
+		return err
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
+	return nil
 }
 
 func (m *UserModel) Get(googleId string) (*User, error) {
@@ -46,7 +50,7 @@ func (m *UserModel) Get(googleId string) (*User, error) {
 	err := row.Scan(&user.Id, &user.Username, &user.Created)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, sql.ErrNoRows
+			return nil, ErrNoRecord
 		}
 		return nil, err
 	}

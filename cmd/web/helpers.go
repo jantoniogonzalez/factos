@@ -47,3 +47,7 @@ func (app *application) checkUserExists(googleId string) *models.User {
 
 	return user
 }
+
+func (app *application) parseForm() {
+
+}

@@ -4,7 +4,10 @@
     <form method="post">
         <fieldset>
             <label>Username: </label>
-            <input type="text" name="Username" />
+            {{with .Form.FieldErrors.username }}
+                <label class="error">{{.}}</label>
+            {{end}}
+            <input type="text" name="Username" value="{{.Form.Username}}" />
         </fieldset>  
         <button  type="submit">Sign up</button>
     </form>
