@@ -1,15 +1,19 @@
 {{ define "main" }}
 <dialog open>
     <h3 class="logo">Welcome to <span class="primary">FACT<span class="secondary">OS</span></span>!</h3>
-    <form method="post">
+    <form action='/signup' method='POST' novalidate>
+        {{with .Form.FieldErrors.googleId }}
+            <label class="error">{{.}}</label>
+        {{end}}
         <fieldset>
             <label>Username: </label>
             {{with .Form.FieldErrors.username }}
                 <label class="error">{{.}}</label>
             {{end}}
-            <input type="text" name="Username" value="{{.Form.Username}}" />
-        </fieldset>  
-        <button  type="submit">Sign up</button>
+            <input type="text" name="username" value='{{.Form.Username}}' />
+        </fieldset>
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <button type="submit">Sign up</button>
     </form>
 </dialog>
 {{end}}

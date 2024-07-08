@@ -24,8 +24,14 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-func (app *application) render(w http.ResponseWriter, pages []string, data *templateData) {
-	ts, err := template.ParseFiles(pages...)
+func (app *application) render(w http.ResponseWriter, page string, data *templateData) {
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/partials/nav.tmpl",
+		"./ui/html/partials/subnav.tmpl",
+		"./ui/html/pages/" + page,
+	}
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		app.serverError(w, err)
 		return

@@ -78,11 +78,19 @@ nav {
 }
 
 .primary {
-    color: var(--primary)
+    color: var(--primary);
 }
 
 .secondary {
-    color: var(--secondary)
+    color: var(--secondary);
+}
+
+.valid {
+    color: var(--green);
+}
+
+.error {
+    color: var(--red);
 }
 
 button {

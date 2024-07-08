@@ -8,7 +8,11 @@
         <a href="/euro">Euro 2024</a>
     </div>
     <div>
-        <a href="/authenticate">Login</a>
+        {{ if .LoggedIn }}
+            <a>Hello, {{.LoggedInUsername}}</a>
+        {{ else }}
+            <a href="/authenticate">Login</a>
+        {{end}}
     </div>
 </nav>
 {{end}}

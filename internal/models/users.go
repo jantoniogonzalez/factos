@@ -20,23 +20,29 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (m *UserModel) Insert(username, googleId string) error {
-	query := `INSERT INTO Users values(username, googleId, created)
-	values(?, ?, UTC_TIMESTAMP());`
+func (m *UserModel) Insert(username, googleId string) (int64, error) {
+	query := `INSERT INTO users (username, googleId, created)
+	VALUES (?, ?, UTC_TIMESTAMP());`
 
-	_, err := m.DB.Exec(query, username, googleId)
+	result, err := m.DB.Exec(query, username, googleId)
 
 	if err != nil {
 		var mySQLError *mysql.MySQLError
 		if errors.As(err, &mySQLError) {
 			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "uc_users_username") {
-				return ErrDuplicateUsername
+				return 0, ErrDuplicateUsername
 			}
 		}
-		return err
+		return 0, err
 	}
 
-	return nil
+	id, err := result.LastInsertId()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func (m *UserModel) Get(googleId string) (*User, error) {
