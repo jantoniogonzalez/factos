@@ -44,7 +44,7 @@ func (app *application) render(w http.ResponseWriter, page string, data *templat
 	}
 }
 
-func (app *application) checkUserExists(googleId string) *models.User {
+func (app *application) checkUserExistsByGoogleId(googleId string) *models.User {
 	user, err := app.users.Get(googleId)
 
 	if err != nil {

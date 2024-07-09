@@ -1,7 +1,7 @@
 {{ define "nav" }}
 <nav class="main-nav">
     <div>
-        <h1 href="/" class="logo"><a><span class="primary">FACT</span><span class="secondary">OS</span></a></h1>
+        <h1 class="logo"><a href="/"><span class="primary">FACT</span><span class="secondary">OS</span></a></h1>
     </div>
     <div class="links">
         <a href="/copa-america">Copa America 2024</a>
@@ -9,9 +9,14 @@
     </div>
     <div>
         {{ if .LoggedIn }}
-            <a>Hello, {{.LoggedInUsername}}</a>
+            <form action='/logout' method='POST' novalidate>
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+                <button type="submit">Logout</button>
+            </form>
         {{ else }}
-            <a href="/authenticate">Login</a>
+            <form action="/authenticate" method="GET">
+                <button type="submit">Login with Google</button>
+            </form>
         {{end}}
     </div>
 </nav>

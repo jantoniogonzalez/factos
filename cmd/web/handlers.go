@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/jantoniogonzalez/factos/internal/models"
 	"github.com/jantoniogonzalez/factos/internal/validator"
@@ -27,10 +28,7 @@ type userCreateForm struct {
 }
 
 func (app *application) viewLandingPage(w http.ResponseWriter, r *http.Request) {
-	data := &templateData{
-		Subnav: false,
-	}
-
+	data := app.newTemplateData(r, false)
 	app.render(w, "landing.tmpl", data)
 }
 
@@ -51,10 +49,24 @@ func (app *application) viewTournamentPredictions(w http.ResponseWriter, r *http
 }
 
 func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.Path, "/")
+	params := make(map[string]string)
+	params["league"] = path[1]
+	params["season"] = path[2]
 
+	res, err := models.GetFixtures(params)
+	if err != nil || len(res.Errors) > 0 {
+		app.notFound(w)
+		return
+	}
+
+	data := app.newTemplateData(r, false)
+	data.Fixtures = res.Response
+	app.render(w, "", data)
+	return
 }
 
-func (app *application) viewFutureFixtures(w http.ResponseWriter, r *http.Request) {
+func (app *application) viewTournamentFutureFixtures(w http.ResponseWriter, r *http.Request) {
 
 }
 
@@ -110,7 +122,7 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := app.checkUserExists(googleData.Id)
+	user := app.checkUserExistsByGoogleId(googleData.Id)
 
 	fmt.Printf("UserData is %v and also %v \n", string(userData), googleData.Id)
 
@@ -122,6 +134,7 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Login
+	app.sessionManager.Put(r.Context(), "authenticatedUsername", user.Username)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	// Create session
 }
@@ -183,5 +196,10 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	// Not displaying authenticated username
 	app.sessionManager.Put(r.Context(), "authenticatedUsername", userForm.Username)
 
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) logout(w http.ResponseWriter, r *http.Request) {
+	app.sessionManager.Remove(r.Context(), "authenticatedUsername")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

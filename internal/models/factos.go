@@ -9,6 +9,8 @@ import (
 type Factos struct {
 	Id           int
 	MatchId      int
+	LeagueId     int
+	Season       int
 	GoalsHome    int
 	GoalsAway    int
 	Result       int
@@ -23,14 +25,12 @@ type FactosModel struct {
 	DB *sql.DB
 }
 
-func (m *FactosModel) Insert(matchId, goalsHome, goalsAway, result int, extraTime, penalties bool) (int, error) {
-	// need to add the user Id crap logic here
-
-	query := `INSERT INTO factos(matchId, goalsHome, goalsAway, lastModified,
+func (m *FactosModel) Insert(matchId, leagueId, season, goalsHome, goalsAway, result, userId int, extraTime, penalties bool) (int, error) {
+	query := `INSERT INTO factos(matchId, leagueId, season, goalsHome, goalsAway, lastModified,
 	created, userId, extraTime, penalties, result)
-	VALUES ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), userid, ?, ?, ?`
+	VALUES ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), ?, ?, ?, ?`
 
-	res, err := m.DB.Exec(query)
+	res, err := m.DB.Exec(query, matchId, leagueId, season, goalsHome, goalsAway, userId, extraTime, penalties, result)
 
 	if err != nil {
 		return 0, err
