@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
-	"text/template"
 
 	"github.com/jantoniogonzalez/factos/internal/models"
 )
@@ -25,19 +24,8 @@ func (app *application) notFound(w http.ResponseWriter) {
 }
 
 func (app *application) render(w http.ResponseWriter, page string, data *templateData) {
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/partials/subnav.tmpl",
-		"./ui/html/pages/" + page,
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.ExecuteTemplate(w, "base", data)
+	ts := app.cachedFiles[page]
+	err := ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.serverError(w, err)
 		return

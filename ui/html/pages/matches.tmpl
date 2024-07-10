@@ -2,7 +2,19 @@
 <div class="fixtures-grid">
     {{if .Fixtures}}
     {{ range .Fixtures }}
-        {{ template "fixture" . }}
+        <div class="fixture-container">
+            <div class="date">{{ .Fixture.Date }}</div>
+            <div class="fixture">
+                <div class="team">{{ .Teams.Home.Name }}</div>
+                {{ if .Fixture.Status.Elapsed }}
+                    <div>{{ .Goals.Home }} - {{ .Goals.Away}}</div>
+                {{ else }}
+                    <div>VS</div>
+                {{end}}
+                <div class="team">{{ .Teams.Away.Name }}</div>
+            </div>
+            <button class="facto-button">View <span class="logo">FACTOS</span></button>
+        </div>
     {{end}}
     {{else}}
     <p>No matches found.</p>

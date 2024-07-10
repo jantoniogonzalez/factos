@@ -120,29 +120,62 @@ button:hover{
 }
 
 .fixture-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* border: 1px solid var(--primary); */
+    display: grid;
+    grid-template-rows: 1fr 4fr;
+    row-gap: 10px;
     border-radius: 10px;
     box-shadow: 0px 1px 1px var(--black);
-    background-color: var(--black);
-    color: var(--white);
-    padding: 5px;
+    background-color: #ffffff;
+    color: var(--black);
+    padding: 10px 10px;
     position: relative;
-    row-gap: 10px;
-    .date {
-        position: relative;
-        font-size: 16px;
-     }
-    .fixture {
+    .top {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        column-gap: 30px;
-        width: 100%;
-        .team {
-            font-weight: bold;
+        justify-content: space-between;
+        .date {
+            font-weight: 300;
+            font-size: 16px;
+        }
+        .status {
+
+        }
+    }
+    .main {
+        display: grid;
+        grid-template-columns: 4fr 1fr;
+        .fixture {
+            display: grid;
+            grid-template-rows: repeat(2, 1fr);
+            row-gap: 7px;
+            padding-right: 5px;
+            align-items: center;
+            border-right: solid 1px var(--white);
+            .team {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                align-content: center;
+                column-gap: 5px;
+                .info {
+                    display: flex;
+                    column-gap: 5px;
+                    .badge {
+                        width: 24px;
+                    }
+                }
+                .goals {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    column-gap: 3px;
+                }
+            }
+            .winner {
+                font-weight: bold;
+            }
+        }
+        .facto {
+            display: flex;
+            margin-left: 5px;
         }
     }
 }

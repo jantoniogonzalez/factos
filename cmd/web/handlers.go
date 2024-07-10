@@ -51,19 +51,25 @@ func (app *application) viewTournamentPredictions(w http.ResponseWriter, r *http
 func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path, "/")
 	params := make(map[string]string)
-	params["league"] = path[1]
-	params["season"] = path[2]
+	params["league"] = path[2]
+	params["season"] = path[3]
+	params["last"] = "8"
+	fmt.Printf("In viewTournamentResults, looking for league: %v, season: %v, last: %v\n", params["league"], params["season"], params["last"])
 
 	res, err := models.GetFixtures(params)
-	if err != nil || len(res.Errors) > 0 {
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	if len(res.Errors) > 0 {
 		app.notFound(w)
 		return
 	}
 
-	data := app.newTemplateData(r, false)
+	data := app.newTemplateData(r, true)
 	data.Fixtures = res.Response
-	app.render(w, "", data)
-	return
+	app.render(w, "matches.tmpl", data)
 }
 
 func (app *application) viewTournamentFutureFixtures(w http.ResponseWriter, r *http.Request) {

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"text/template"
 	"time"
 
 	"github.com/alexedwards/scs/mysqlstore"
@@ -26,6 +27,7 @@ type application struct {
 	oauthConfig    *oauth2.Config
 	sessionManager *scs.SessionManager
 	formDecoder    *form.Decoder
+	cachedFiles    map[string]*template.Template
 }
 
 func main() {
@@ -41,6 +43,11 @@ func main() {
 	dsn := flag.String("dsn", os.Getenv("DSN"), "MySQL connection string")
 
 	flag.Parse()
+
+	cachedFiles, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
 
 	conf := &oauth2.Config{
 		ClientID:     os.Getenv("CLIENT_ID"),
@@ -76,6 +83,7 @@ func main() {
 		users:          &models.UserModel{DB: db},
 		sessionManager: sessionManager,
 		formDecoder:    formDecoder,
+		cachedFiles:    cachedFiles,
 	}
 
 	srv := &http.Server{
