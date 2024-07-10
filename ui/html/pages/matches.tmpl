@@ -2,19 +2,49 @@
 <div class="fixtures-grid">
     {{if .Fixtures}}
     {{ range .Fixtures }}
-        <div class="fixture-container">
-            <div class="date">{{ .Fixture.Date }}</div>
-            <div class="fixture">
-                <div class="team">{{ .Teams.Home.Name }}</div>
-                {{ if .Fixture.Status.Elapsed }}
-                    <div>{{ .Goals.Home }} - {{ .Goals.Away}}</div>
-                {{ else }}
-                    <div>VS</div>
-                {{end}}
-                <div class="team">{{ .Teams.Away.Name }}</div>
-            </div>
-            <button class="facto-button">View <span class="logo">FACTOS</span></button>
+    <div class="fixture-container">
+        <div class="top">
+            <span class="date">{{ humanDate .Fixture.Date }}</span>
+            <span class="status">{{ .Fixture.Status.Short }}</span>
         </div>
+        <div class="main">
+            <div class="fixture">
+                <div class={{ customClasses "team" "winner" .Teams.Home.Winner }}>
+                    <div class="info">
+                        <img class="badge" src={{ .Teams.Home.Logo }} alt="/ui/static/img/badge.svg" />
+                        <div>{{ .Teams.Home.Name }}</div>
+                    </div>
+                    <div class="goals">
+                    {{ if .Goals.Home }}
+                        <span>{{ .Goals.Home }} {{ if .Score.Penalty.Home}}({{.Score.Penalty.Home}}){{end}}</span>
+                        <span></span>
+                    {{end}}
+                    </div>
+                </div>
+                <div class={{ customClasses "team" "winner" .Teams.Away.Winner }}>
+                    <div class="info">
+                    <img class="badge" src={{ .Teams.Away.Logo }} alt="/ui/static/img/badge.svg" />
+                    <div>{{ .Teams.Away.Name }} {{ if .Score.Penalty.Away}}({{.Score.Penalty.Away}}){{end}}</div> 
+                    </div>
+                    <div class="goals">
+                    {{ if .Goals.Away }}
+                        <span>{{ .Goals.Away }}</span>
+                        <span></span>
+                    {{end}}
+                    </div>
+                </div>
+            </div>
+            <div class="facto">
+                <div class="card">
+                    <div class="label valid-background">FACTO</div>
+                    <div class="result border-correct">
+                        <span>1</span>
+                        <span>2</span>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
     {{end}}
     {{else}}
     <p>No matches found.</p>

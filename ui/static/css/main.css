@@ -1,10 +1,12 @@
 :root {
     --white:#F0EDEE;
+    --gray: #67697C;
     --black: #413054;
     --primary: #298cfe;
     --secondary: #e9008b;
     --green: #53DD6C;
-    --red: #ff5400;
+    --red: #EF2D56;
+    --gold: #FFD700;
 }
 
 * {
@@ -78,19 +80,40 @@ nav {
 }
 
 .primary {
-    color: var(--primary);
+    color: var(--primary) !important;
 }
 
 .secondary {
-    color: var(--secondary);
+    color: var(--secondary) !important;
 }
 
 .valid {
-    color: var(--green);
+    color: var(--green) !important;
 }
 
 .error {
-    color: var(--red);
+    color: var(--red) !important;
+}
+.white {
+    color: var(--white) !important;
+}
+.primary-background {
+    background-color: var(--primary) !important;
+}
+.secondary-background {
+    background-color: var(--secondary) !important;
+}
+.valid-background {
+    background-color: var(--green) !important;
+}
+.error-background {
+    background-color: var(--red) !important;
+}
+.gold-background {
+    background-color: var(--gold) !important;
+}
+.black-background {
+    background-color: var(--black) !important;
 }
 
 button {
@@ -108,6 +131,7 @@ button {
 
 button:hover{
     background-color: var(--secondary);
+    transform: scale(1.05);
 }
 
 .landing-page {
@@ -130,14 +154,24 @@ button:hover{
     padding: 10px 10px;
     position: relative;
     .top {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         .date {
             font-weight: 300;
             font-size: 16px;
         }
         .status {
-
+            text-align: right;
+            align-content: center;
+        }
+        .live-dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            background-color: var(--green);
+            display: inline-block;
+            margin-left: 3px;
+            animation: 3s linear 1s infinite alternate slidein;
         }
     }
     .main {
@@ -176,7 +210,71 @@ button:hover{
         .facto {
             display: flex;
             margin-left: 5px;
+            .card {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                cursor: pointer;
+                width: 90.77px;
+                .result {
+                    display: grid;
+                    grid-template-rows: repeat(2, 1fr);
+                    row-gap: 10px;
+                    align-items: center;
+                    border-bottom-right-radius: 10px;
+                    border-top-right-radius: 10px;
+                    padding: 0 1.2em;
+                    border-bottom: solid 1px var(--white);
+                    border-right: solid 1px var(--white);
+                    border-top: solid 1px var(--white);
+                    color: var(--black);
+                    font-weight: bold;
+                }
+                .border-wrong {
+                    border-bottom: solid 1px var(--red);
+                    border-right: solid 1px var(--red);
+                    border-top: solid 1px var(--red);
+                }
+                .border-correct {
+                    border-bottom: solid 1px var(--green);
+                    border-right: solid 1px var(--green);
+                    border-top: solid 1px var(--green);
+                }
+                .border-facto {
+                    border-bottom: solid 1px var(--gold);
+                    border-right: solid 1px var(--gold);
+                    border-top: solid 1px var(--gold);
+                }
+                .label {
+                    writing-mode: tb-rl;
+                    transform: rotate(-180deg);
+                    padding: 0.5em 0.5em;
+                    background-color: var(--white);
+                    color: var(--gray);
+                    border-top-right-radius: 10px;
+                    border-bottom-right-radius: 10px;
+                    font-weight: bold;
+                    text-align: center;
+                }
+            }
+            .card:hover{
+                transform: scale(1.05);
+            }
         }
+    }
+}
+
+@keyframes facto-pulse {
+    0%, 25%, 75%, 100% {
+        background-color: var(--primary);
+        border-bottom: solid 1px var(--primary);
+        border-right: solid 1px var(--primary);
+        border-top: solid 1px var(--primary);
+    }
+    26%, 50%, 74% {
+        background-color: var(--secondary);
+        border-bottom: solid 1px var(--secondary);
+        border-right: solid 1px var(--secondary);
+        border-top: solid 1px var(--secondary);
     }
 }
 
@@ -203,6 +301,7 @@ button:hover{
 .facto-button {
     padding: 0em 1em;
 }
+
 
 
 footer {

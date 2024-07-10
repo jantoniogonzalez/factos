@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"text/template"
+	"time"
 
 	"github.com/jantoniogonzalez/factos/internal/models"
 	"github.com/justinas/nosurf"
@@ -18,6 +19,23 @@ type templateData struct {
 	LoggedInUsername string
 	Form             any
 	CSRFToken        string
+}
+
+func humanDate(t time.Time) string {
+	loc, _ := time.LoadLocation("Local")
+	return t.In(loc).Format(time.ANSIC)
+}
+
+func customClasses(classes, additionalClasses string, decider any) string {
+	if decider != nil && decider != true {
+		return classes + " " + additionalClasses
+	}
+	return classes
+}
+
+var functions = template.FuncMap{
+	"humanDate":     humanDate,
+	"customClasses": customClasses,
 }
 
 func (app *application) newTemplateData(r *http.Request, hasSubnav bool) *templateData {
@@ -48,7 +66,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 			page,
 		}
 
-		ts, err := template.ParseFiles(files...)
+		ts, err := template.New(pagename).Funcs(functions).ParseFiles(files...)
 		if err != nil {
 			return nil, err
 		}
