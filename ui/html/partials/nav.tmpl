@@ -4,8 +4,9 @@
         <h1 class="logo"><a href="/"><span class="primary">FACT</span><span class="secondary">OS</span></a></h1>
     </div>
     <div class="links">
-        <a href="/results/9/2024">Copa America 2024</a>
-        <a href="/results/4/2024">Euro 2024</a>
+    {{ range .PinnedLeagues }}
+        <a href="/results/{{ .ID }}/{{ .Season }}">{{ .Name }} {{ .Season }}</a>
+    {{end}}
     </div>
     <div>
         {{ if .LoggedIn }}

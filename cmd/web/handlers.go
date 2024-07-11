@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/jantoniogonzalez/factos/internal/models"
@@ -53,7 +54,7 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 	params := make(map[string]string)
 	params["league"] = path[2]
 	params["season"] = path[3]
-	params["last"] = "8"
+	params["last"] = "10"
 	fmt.Printf("In viewTournamentResults, looking for league: %v, season: %v, last: %v\n", params["league"], params["season"], params["last"])
 
 	res, err := models.GetFixtures(params)
@@ -67,13 +68,67 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	id, err := strconv.Atoi(path[2])
+	if err != nil {
+		app.notFound(w)
+		return
+	}
+	season, err := strconv.Atoi(path[3])
+	if err != nil {
+		app.notFound(w)
+		return
+	}
+
+	league := &models.League{
+		ID:     id,
+		Season: season,
+	}
+
 	data := app.newTemplateData(r, true)
 	data.Fixtures = res.Response
+	data.League = league
 	app.render(w, "matches.tmpl", data)
 }
 
 func (app *application) viewTournamentFutureFixtures(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.Path, "/")
+	params := make(map[string]string)
+	params["league"] = path[2]
+	params["season"] = path[3]
+	params["next"] = "10"
+	fmt.Printf("In viewTournamentResults, looking for league: %v, season: %v, next: %v\n", params["league"], params["season"], params["next"])
 
+	res, err := models.GetFixtures(params)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	if len(res.Errors) > 0 {
+		app.notFound(w)
+		return
+	}
+
+	id, err := strconv.Atoi(path[2])
+	if err != nil {
+		app.notFound(w)
+		return
+	}
+	season, err := strconv.Atoi(path[3])
+	if err != nil {
+		app.notFound(w)
+		return
+	}
+
+	league := &models.League{
+		ID:     id,
+		Season: season,
+	}
+
+	data := app.newTemplateData(r, true)
+	data.Fixtures = res.Response
+	data.League = league
+	app.render(w, "matches.tmpl", data)
 }
 
 func (app *application) auth(w http.ResponseWriter, r *http.Request) {

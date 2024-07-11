@@ -1,12 +1,9 @@
 {{define "subnav"}}
 <nav>
-    <div>
-        <a class="tournament" href="/euro">Euro 2024</a>
-    </div>
     <div class="links">
-        <a href="/euro/results">Results</a>
-        <a href="/euro/upcoming"> Upcoming Matches</a>
-        <a href="/euro/predictions">My Predictions</a>
+        <a href="/results/{{ .League.ID }}/{{ .League.Season }}">Results</a>
+        <a href="/upcoming/{{ .League.ID }}/{{ .League.Season }}"> Upcoming Matches</a>
+        <a href="/predictions/{{ .League.ID }}/{{ .League.Season }}">My Predictions</a>
     </div>
 </nav>
 {{ end }}

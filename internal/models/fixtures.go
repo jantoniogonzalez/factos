@@ -22,7 +22,7 @@ type FixtureResponse struct {
 		Current int `json:"current"`
 		Total   int `json:"total"`
 	} `json:"paging"`
-	Response []Response `json:"response"`
+	Response []*Response `json:"response"`
 }
 
 type Response struct {
@@ -44,54 +44,56 @@ type Response struct {
 		Status struct {
 			Long    string `json:"long"`
 			Short   string `json:"short"`
-			Elapsed any    `json:"elapsed"`
+			Elapsed int    `json:"elapsed"`
 		} `json:"status"`
 	} `json:"fixture"`
-	League struct {
-		ID      int    `json:"id"`
-		Name    string `json:"name"`
-		Country string `json:"country"`
-		Logo    string `json:"logo"`
-		Flag    any    `json:"flag"`
-		Season  int    `json:"season"`
-		Round   string `json:"round"`
-	} `json:"league"`
-	Teams struct {
+	League League `json:"league"`
+	Teams  struct {
 		Home struct {
 			ID     int    `json:"id"`
 			Name   string `json:"name"`
 			Logo   string `json:"logo"`
-			Winner any    `json:"winner"`
+			Winner bool   `json:"winner"`
 		} `json:"home"`
 		Away struct {
 			ID     int    `json:"id"`
 			Name   string `json:"name"`
 			Logo   string `json:"logo"`
-			Winner any    `json:"winner"`
+			Winner bool   `json:"winner"`
 		} `json:"away"`
 	} `json:"teams"`
 	Goals struct {
-		Home any `json:"home"`
-		Away any `json:"away"`
+		Home int `json:"home"`
+		Away int `json:"away"`
 	} `json:"goals"`
 	Score struct {
 		Halftime struct {
-			Home any `json:"home"`
-			Away any `json:"away"`
+			Home int `json:"home"`
+			Away int `json:"away"`
 		} `json:"halftime"`
 		Fulltime struct {
-			Home any `json:"home"`
-			Away any `json:"away"`
+			Home int `json:"home"`
+			Away int `json:"away"`
 		} `json:"fulltime"`
 		Extratime struct {
-			Home any `json:"home"`
-			Away any `json:"away"`
+			Home int `json:"home"`
+			Away int `json:"away"`
 		} `json:"extratime"`
 		Penalty struct {
-			Home any `json:"home"`
-			Away any `json:"away"`
+			Home int `json:"home"`
+			Away int `json:"away"`
 		} `json:"penalty"`
 	} `json:"score"`
+}
+
+type League struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	Country string `json:"country"`
+	Logo    string `json:"logo"`
+	Flag    any    `json:"flag"`
+	Season  int    `json:"season"`
+	Round   string `json:"round"`
 }
 
 func GetFixtures(params map[string]string) (*FixtureResponse, error) {

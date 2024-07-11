@@ -7,13 +7,16 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/jantoniogonzalez/factos/internal/api"
 	"github.com/jantoniogonzalez/factos/internal/models"
 	"github.com/justinas/nosurf"
 )
 
 type templateData struct {
 	// We need to get the fixtures and the facto too...
-	Fixtures         []models.Response
+	Fixtures         []*models.Response
+	PinnedLeagues    []models.League
+	League           *models.League
 	Subnav           bool
 	LoggedIn         bool
 	LoggedInUsername string
@@ -26,16 +29,21 @@ func humanDate(t time.Time) string {
 	return t.In(loc).Format(time.ANSIC)
 }
 
-func customClasses(classes, additionalClasses string, decider any) string {
-	if decider != nil && decider != true {
-		return classes + " " + additionalClasses
+func customClasses(classes, additionalClasses string, decider bool) string {
+	if decider {
+		return classes // need to add stuff here
 	}
 	return classes
+}
+
+func gameStarted(status string) bool {
+	return api.MatchStatus[status] == "In Play" || api.MatchStatus[status] == "Finished"
 }
 
 var functions = template.FuncMap{
 	"humanDate":     humanDate,
 	"customClasses": customClasses,
+	"gameStarted":   gameStarted,
 }
 
 func (app *application) newTemplateData(r *http.Request, hasSubnav bool) *templateData {
@@ -45,6 +53,7 @@ func (app *application) newTemplateData(r *http.Request, hasSubnav bool) *templa
 		LoggedInUsername: app.sessionManager.GetString(r.Context(), "authenticatedUsername"),
 		Subnav:           hasSubnav,
 		CSRFToken:        nosurf.Token(r),
+		PinnedLeagues:    api.PinnedLeagues,
 	}
 }
 

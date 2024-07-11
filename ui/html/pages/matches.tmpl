@@ -15,21 +15,21 @@
                         <div>{{ .Teams.Home.Name }}</div>
                     </div>
                     <div class="goals">
-                    {{ if .Goals.Home }}
-                        <span>{{ .Goals.Home }} {{ if .Score.Penalty.Home}}({{.Score.Penalty.Home}}){{end}}</span>
-                        <span></span>
+                    {{ if gameStarted .Fixture.Status.Short}}
+                        <span>{{ .Goals.Home }}</span>
+                        <span>{{ if .Score.Penalty.Home}}({{.Score.Penalty.Home}}){{end}}</span>
                     {{end}}
                     </div>
                 </div>
                 <div class={{ customClasses "team" "winner" .Teams.Away.Winner }}>
                     <div class="info">
                     <img class="badge" src={{ .Teams.Away.Logo }} alt="/ui/static/img/badge.svg" />
-                    <div>{{ .Teams.Away.Name }} {{ if .Score.Penalty.Away}}({{.Score.Penalty.Away}}){{end}}</div> 
+                    <div>{{ .Teams.Away.Name }}</div> 
                     </div>
                     <div class="goals">
-                    {{ if .Goals.Away }}
+                    {{ if gameStarted .Fixture.Status.Short }}
                         <span>{{ .Goals.Away }}</span>
-                        <span></span>
+                        <span>{{ if .Score.Penalty.Away}}({{.Score.Penalty.Away}}){{end}}</span>
                     {{end}}
                     </div>
                 </div>
