@@ -210,6 +210,18 @@ button:hover{
         .facto {
             display: flex;
             margin-left: 5px;
+            form {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                fieldset {
+                    border: none;
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                input {
+                    width: 30px;
+                }
+            }
             .card {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
@@ -335,7 +347,6 @@ dialog {
     align-items: center;
     padding: 10px;
     width: 300px;
-    height: 150px;
     box-shadow: 1px 1px 1px var(--black);
     form {
         display: flex;
@@ -347,5 +358,12 @@ dialog {
         border: none;
         display: flex;
         flex-direction: column;
+    }
+    fieldset.horizontal {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        .goals {
+            width: 80px;
+        }
     }
 }

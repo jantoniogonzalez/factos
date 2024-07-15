@@ -31,7 +31,7 @@ func humanDate(t time.Time) string {
 
 func customClasses(classes, additionalClasses string, decider bool) string {
 	if decider {
-		return classes // need to add stuff here
+		return (classes + " " + additionalClasses)
 	}
 	return classes
 }

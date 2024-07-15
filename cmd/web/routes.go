@@ -22,8 +22,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.viewLandingPage))
 
 	router.Handler(http.MethodGet, "/factos/view/:id", dynamic.ThenFunc(app.viewFactosById))
-	router.Handler(http.MethodGet, "/factos/create", dynamic.ThenFunc(app.createFactos))
-	router.Handler(http.MethodPost, "/factos/create", dynamic.ThenFunc(app.createFactosPost))
+	router.Handler(http.MethodGet, "/factos/create/:matchId", dynamic.ThenFunc(app.createFactos))
+	router.Handler(http.MethodPost, "/factos/create/:matchId", dynamic.ThenFunc(app.createFactosPost))
 
 	router.Handler(http.MethodGet, "/results/:tournamentId/:season", dynamic.ThenFunc(app.viewTournamentResults))
 	router.Handler(http.MethodGet, "/upcoming/:tournamentId/:season", dynamic.ThenFunc(app.viewTournamentFutureFixtures))
