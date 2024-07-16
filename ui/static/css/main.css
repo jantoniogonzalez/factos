@@ -156,10 +156,6 @@ button:hover{
     .top {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        .date {
-            font-weight: 300;
-            font-size: 16px;
-        }
         .status {
             text-align: right;
             align-content: center;
@@ -183,7 +179,7 @@ button:hover{
             row-gap: 7px;
             padding-right: 5px;
             align-items: center;
-            border-right: solid 1px var(--white);
+            max-height: 88px;
             .team {
                 display: flex;
                 align-items: center;
@@ -209,17 +205,42 @@ button:hover{
         }
         .facto {
             display: flex;
-            margin-left: 5px;
+            padding-left: 5px;
+            border-left: solid 1px var(--white);
             form {
                 display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                fieldset {
-                    border: none;
+                grid-template-rows: 3fr 1fr;
+                row-gap: 7px;
+                .fields {
                     display: grid;
-                    grid-template-columns: repeat(2, 1fr);
+                    grid-template-rows: repeat(2, 1fr);
+                    row-gap: 7px;
+                    min-height: 88px;
+                    .team {
+                        display: flex;
+                        justify-content: flex-end;
+                        column-gap: 7px;
+                        align-items: center;
+                        input{
+                            text-align: end;
+
+                        }
+                        fieldset {
+                            display: flex;
+                            border: none;
+                        }
+                    }
+                    input {
+                        width: 30px;
+                    }  
                 }
-                input {
-                    width: 30px;
+                .submit {
+                    display: flex;
+                    justify-content: flex-end;
+                    button {
+                        padding: 0 0.5em !important;
+                        margin-left: 5px;
+                    }
                 }
             }
             .card {
@@ -275,21 +296,6 @@ button:hover{
     }
 }
 
-@keyframes facto-pulse {
-    0%, 25%, 75%, 100% {
-        background-color: var(--primary);
-        border-bottom: solid 1px var(--primary);
-        border-right: solid 1px var(--primary);
-        border-top: solid 1px var(--primary);
-    }
-    26%, 50%, 74% {
-        background-color: var(--secondary);
-        border-bottom: solid 1px var(--secondary);
-        border-right: solid 1px var(--secondary);
-        border-top: solid 1px var(--secondary);
-    }
-}
-
 .fixtures-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -341,10 +347,6 @@ dialog {
     margin-left: -150px;
     margin-top: -150px;
     border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
     padding: 10px;
     width: 300px;
     box-shadow: 1px 1px 1px var(--black);
@@ -366,4 +368,17 @@ dialog {
             width: 80px;
         }
     }
+}
+
+dialog::backdrop {
+    background-color: #413054;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
 }

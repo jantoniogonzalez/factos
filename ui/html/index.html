@@ -140,7 +140,7 @@
                         </div>
                         <div class="facto">
                             <div class="card">
-                                <div class="label error-background">NO FACTO</div>
+                                <div class="label error-background">INFACTO</div>
                                 <div class="result border-wrong">
                                     <span>1</span>
                                     <span>2</span>
@@ -175,13 +175,13 @@
                             </div>
                         </div>
                         <div class="facto">
-                            <button class="facto-button">New <span class="logo">FACTOS</span></button>
+                            <button newfactos-open-modal class="facto-button">New <span class="logo">FACTOS</span></button>
                         </div> 
                     </div>
                 </div>
                 <div class="fixture-container">
-                    <div class="date">
-                        June 21, 2025
+                    <div class="top">
+                        <span class="date">July 14, 2024</span>
                     </div>
                     <div class="main">
                         <div class="fixture">
@@ -205,52 +205,63 @@
                             </div>
                         </div>
                         <div class="facto">
-                            <form>
-                                <div>
-                                    <input type="number" class="goals" />
-                                    <input type="number" class="goals" />
+                            <form method="POST">
+                                <div class="fields">
+                                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                                    <div class="team">
+                                        <input type="number" placeholder="0" pattern="[0-9]*" min="0" class="goals" step="1" />
+                                        <fieldset>
+                                            <span>pen.</span>
+                                            <input type="checkbox" />
+                                        </fieldset>
+                                        <input disabled type="number" min="0" class="goals" step="1"/>
+                                        <!-- <fieldset>
+                                            <span>p.</span>
+                                            <input disabled type="number" min="0" class="goals" step="1"/>
+                                        </fieldset> -->
+                                    </div>
+                                    <div class="team">
+                                        <input placeholder="0" type="number" pattern="[0-9]*" min="0" class="goals" step="1"/>
+                                        <!-- <fieldset>
+                                            <span>p.</span>
+                                            <input type="number" min="0" class="goals" step="1"/>
+                                        </fieldset> -->
+                                    </div>
                                 </div>
-                                <div>
-                                    <fieldset>
-                                        <span>p.</span>
-                                        <input type="number" class="goals" />
-                                    </fieldset>
-                                    <fieldset>
-                                        <span>p.</span>
-                                        <input type="number" class="goals" />
-                                    </fieldset>
-                                </div>
+                                
+                                <span class="submit"><button class="valid-background">Save</button><button class="error-background">X</button></span>
                             </form>
                         </div> 
                     </div>
                 </div>              
             </div>
-            <div class="blur-bg"></div>
-            <!-- <dialog open>
-                <h3 class="logo">New <span class="primary">FACT<span class="secondary">OS</span></span></h3>
-                <form action="/factos/create/matchId" method="POST" novalidate>
-                    <fieldset class="horizontal">
-                        <label>Bayern Munich</label>
-                        <input class="goals" type="number" name="homeGoals" placeholder="0" />
-                    </fieldset>
-                    <fieldset class="horizontal">
-                        <label>Independiente Medellin</label>
-                        <input class="goals" type="number" name="awayGoals" placeholder="0" />
-                    </fieldset>
-                    <fieldset class="horizontal">
-                        <label>Extra Time:</label>
-                        <input type="checkbox" name="extraTime" />
-                    </fieldset>
-                    <fieldset class="horizontal">
-                        <label>Penalties:</label>
-                        <input type="checkbox" name="penalties" />
-                    </fieldset>
-                    <fieldset></fieldset>
-                </form>
-            </dialog> -->
         </main>
+        <dialog newfactos-modal>
+            <h3 class="logo">New <span class="primary">FACT<span class="secondary">OS</span></span></h3>
+            <form action="/factos/create/matchId" method="POST" novalidate>
+                <fieldset class="horizontal">
+                    <label>Bayern Munich</label>
+                    <input class="goals" type="number" name="homeGoals" placeholder="0" />
+                </fieldset>
+                <fieldset class="horizontal">
+                    <label>Independiente Medellin</label>
+                    <input class="goals" type="number" name="awayGoals" placeholder="0" />
+                </fieldset>
+                <fieldset class="horizontal">
+                    <label>Extra Time:</label>
+                    <input type="checkbox" name="extraTime" />
+                </fieldset>
+                <fieldset class="horizontal">
+                    <label>Penalties:</label>
+                    <input type="checkbox" name="penalties" />
+                </fieldset>
+                <fieldset></fieldset>
+            </form>
+            <span><button newfactos-close-modal class="valid-background">Save</button><button newfactos-close-modal class="error-background">X</button></span>
+        </dialog>
     </body>
     <footer>
     Developed by <a href="https://github.com/jantoniogonzalez/factos">jantoniogonzalez</a>
     </footer>
+    <script src="/ui/static/js/main.js" type="text/javascript"></script>
 </html>
