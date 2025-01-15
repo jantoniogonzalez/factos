@@ -28,6 +28,16 @@ type userCreateForm struct {
 	validator.Validator
 }
 
+type factoCreateForm struct {
+	MatchId   int  `form:"matchId"`
+	LeagueId  int  `form:"leagueId"`
+	Season    int  `form:"season"`
+	GoalsHome int  `form:"goalsHome"`
+	GoalsAway int  `form:"goalsAway"`
+	ExtraTime bool `form:"extraTime"`
+	Penalties bool `form:"penalties"`
+}
+
 func (app *application) viewLandingPage(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r, false)
 	app.render(w, "landing.tmpl", data)
@@ -38,11 +48,55 @@ func (app *application) viewFactosById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createFactos(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r, false)
 
+	path := strings.Split(r.URL.Path, "/")
+	params := make(map[string]string)
+	params["id"] = path[3]
+
+	fixturesResponse, err := models.GetFixtures(params)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	// Before displaying the data, check if the match happened already?
+	// What if they try to change the path
+	fixture := fixturesResponse.Response[0]
+
+	if !app.BeforeDate(fixture.Fixture.Date) {
+		// Make a page that shows the game already happened
+		return
+	}
+
+	// Would we need to check if a facto was already created??
+	// Cuz then we could reuse the createFactos with the Edit Factos
+
+	// Pass matchId in data form
+	var form factoCreateForm
+	form.MatchId = fixture.Fixture.ID
+	form.LeagueId = fixture.League.ID
+	form.Season = fixture.League.Season
+
+	data.Form = form
+	// app.render(w, "factosModal.tmpl", data)
 }
 
 func (app *application) createFactosPost(w http.ResponseWriter, r *http.Request) {
+	var form factoCreateForm
 
+	err := app.decodePostForm(r, form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	// Add the rest, do we really need league? Makes queries a lot easier...
+	// Parse the path, maybe we can include the league there too
+
+	_, err = app.factos.Insert(0, 0, 0, form.GoalsHome, form.GoalsAway, 0, 0, form.ExtraTime, form.Penalties)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 }
 
 func (app *application) viewTournamentPredictions(w http.ResponseWriter, r *http.Request) {

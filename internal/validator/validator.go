@@ -1,6 +1,8 @@
 package validator
 
-import "strings"
+import (
+	"strings"
+)
 
 type Validator struct {
 	FieldErrors map[string]string

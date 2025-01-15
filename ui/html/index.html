@@ -237,15 +237,18 @@
             </div>
         </main>
         <dialog newfactos-modal>
-            <h3 class="logo">New <span class="primary">FACT<span class="secondary">OS</span></span></h3>
-            <form action="/factos/create/matchId" method="POST" novalidate>
+            <header>
+                <h3 class="logo">New <span class="primary">FACT<span class="secondary">OS</span></span></h3>
+                <button class="invisible newfactos-close-modal">x</button>
+            </header>
+            <form id="newFactosForm" action="/factos/create" method="POST" novalidate></form>
                 <fieldset class="horizontal">
                     <label>Bayern Munich</label>
-                    <input class="goals" type="number" name="homeGoals" placeholder="0" />
+                    <input class="goals-new-facto" type="number" name="homeGoals" placeholder="0" max="99" min="0" />
                 </fieldset>
                 <fieldset class="horizontal">
                     <label>Independiente Medellin</label>
-                    <input class="goals" type="number" name="awayGoals" placeholder="0" />
+                    <input class="goals-new-facto" type="number" name="awayGoals" placeholder="0" max=99 min=0/>
                 </fieldset>
                 <fieldset class="horizontal">
                     <label>Extra Time:</label>
@@ -255,9 +258,15 @@
                     <label>Penalties:</label>
                     <input type="checkbox" name="penalties" />
                 </fieldset>
-                <fieldset></fieldset>
-            </form>
-            <span><button newfactos-close-modal class="valid-background">Save</button><button newfactos-close-modal class="error-background">X</button></span>
+                <input type="hidden" name="matchId" value="" />
+                <input type="hidden" name="leagueId" value="" />
+                <input type="hidden" name="season" value="" />
+            </form>  
+            <footer>
+                <button class="invisible newfactos-close-modal">Cancel</button>
+                <button class="newfactos-close-modal" type="submit" form="newFactosForm">Create</button>
+            </footer>
+            <!-- <span class="footer"><button newfactos-close-modal class="valid-background">Save</button><button newfactos-close-modal class="error-background">X</button></span> -->
         </dialog>
     </body>
     <footer>

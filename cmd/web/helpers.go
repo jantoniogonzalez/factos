@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 
+	"github.com/go-playground/form/v4"
 	"github.com/jantoniogonzalez/factos/internal/models"
 )
 
@@ -42,6 +45,26 @@ func (app *application) checkUserExistsByGoogleId(googleId string) *models.User 
 	return user
 }
 
-func (app *application) parseForm() {
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
 
+	err = app.formDecoder.Decode(&dst, r.Form)
+	if err != nil {
+		var invalidDecoderError *form.InvalidDecoderError
+
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+func (app *application) BeforeDate(field time.Time) bool {
+	return time.Now().Before(field)
 }
