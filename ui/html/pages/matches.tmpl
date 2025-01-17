@@ -11,7 +11,7 @@
             <div class="fixture">
                 <div class={{ customClasses "team" "winner" .Teams.Home.Winner }}>
                     <div class="info">
-                        <img class="badge" src={{ .Teams.Home.Logo }} alt="/ui/static/img/badge.svg" />
+                        <img class="badge" src={{ .Teams.Home.Logo }} alt="/static/img/badge.svg" />
                         <div>{{ .Teams.Home.Name }}</div>
                     </div>
                     <div class="goals">
@@ -23,7 +23,7 @@
                 </div>
                 <div class={{ customClasses "team" "winner" .Teams.Away.Winner }}>
                     <div class="info">
-                    <img class="badge" src={{ .Teams.Away.Logo }} alt="/ui/static/img/badge.svg" />
+                    <img class="badge" src={{ .Teams.Away.Logo }} alt="/static/img/badge.svg" />
                     <div>{{ .Teams.Away.Name }}</div> 
                     </div>
                     <div class="goals">
@@ -36,13 +36,51 @@
             </div>
             <div class="facto">
                 <div class="card">
+                <!--
+                    1. Check that match is not ongoing
+                    2. Check if user has a facto already or not
                     <div class="label valid-background">FACTO</div>
                     <div class="result border-correct">
                         <span>1</span>
                         <span>2</span>
                     </div>
+                -->
+                    <div class="facto">
+                        <button newfactos-open-modal class="facto-button">New <span class="logo">FACTOS</span></button>
+                    </div> 
                 </div>
-            </div> 
+            </div>
+            <dialog newfactos-modal>
+                <header>
+                    <h3 class="logo">New <span class="primary">FACT<span class="secondary">OS</span></span></h3>
+                    <button class="invisible x-close-modal">x</button>
+                </header>
+                <form id="newFactosForm" action="/factos/create" method="POST" novalidate>
+                    <fieldset class="horizontal">
+                        <label>{{ .Teams.Home.Name }}</label>
+                        <input class="goals-new-facto" type="number" name="homeGoals" placeholder="0" max="99" min="0" />
+                    </fieldset>
+                    <fieldset class="horizontal">
+                        <label>{{ .Teams.Away.Name }}</label>
+                        <input class="goals-new-facto" type="number" name="awayGoals" placeholder="0" max="99" min="0"/>
+                    </fieldset>
+                    <fieldset class="horizontal">
+                        <label>Extra Time:</label>
+                        <input type="checkbox" name="extraTime" />
+                    </fieldset>
+                    <fieldset class="horizontal">
+                        <label>Penalties:</label>
+                        <input type="checkbox" name="penalties" />
+                    </fieldset>
+                    <input type="hidden" name="matchId" value="" />
+                    <input type="hidden" name="leagueId" value="" />
+                    <input type="hidden" name="season" value="" />
+                </form>  
+                <footer>
+                    <button class="invisible cancel-close-modal">Cancel</button>
+                    <button class="newfactos-close-modal" type="submit" form="newFactosForm">Create</button>
+                </footer>
+            </dialog>
         </div>
     </div>
     {{end}}

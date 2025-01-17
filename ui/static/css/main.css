@@ -343,7 +343,7 @@ input {
     border-radius: 0.5rem;
     background-color: #ffffff;
     border: 1px solid var(--gray);
-    padding: 1.5rem 1rem;
+    padding: 1rem 1rem;
     font-size: 18px;
 }
 
@@ -368,6 +368,10 @@ dialog {
         justify-content: space-between;
         align-items: center;
     }
+    form {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
     fieldset {
         border: none;
         display: flex;
@@ -378,10 +382,6 @@ dialog {
         border: none;
         flex-direction: row;
         align-items: center;
-        .goals-new-facto {
-            width: 80px;
-            height: 10px;
-        }
         justify-content: space-between;
         margin-bottom: 0.5em;
     }
@@ -392,7 +392,11 @@ dialog {
     input[type="checkbox"] {
         border-style: none;
         outline: none;
-        width: fit-content;
+        /* width: fit-content; */
+    }
+    input.goals-new-facto { 
+        width: 50px;
+        height: 10px;
     }
     footer {
         display: flex;
@@ -400,7 +404,7 @@ dialog {
         column-gap: 10px;
         padding-top: 1em;
         button {
-            padding: 0;
+            padding: 1rem;
         }
     }
 }
