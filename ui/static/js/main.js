@@ -1,14 +1,16 @@
 const openNewFactos = document.querySelectorAll("[newfactos-open-modal]");
-const newFactosModal = document.querySelector("[newfactos-modal]");
+const newFactosModal = document.querySelectorAll("[newfactos-modal]");
 //const closeNewFactos = document.querySelectorAll("[newfactos-close-modal]")
 console.log("Running JS script");
 
-openNewFactos.forEach((openButton) => {
-    openButton.addEventListener("click", () => {
-        console.log("Opening modal");
-        newFactosModal.showModal();
-    });
-})
+for (let i = 0; i < openNewFactos.length; i++) {
+    openNewFactos.item(i).addEventListener("click", () => {
+        console.log("Opening Modal");
+        newFactosModal.item(i).showModal();
+    })
+}
+  
+  
 
 const closeNewFactos = document.querySelector(".newfactos-close-modal");
 const exit = document.querySelector(".cancel-close-modal");

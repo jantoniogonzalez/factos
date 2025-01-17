@@ -368,10 +368,6 @@ dialog {
         justify-content: space-between;
         align-items: center;
     }
-    form {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
     fieldset {
         border: none;
         display: flex;
@@ -384,6 +380,7 @@ dialog {
         align-items: center;
         justify-content: space-between;
         margin-bottom: 0.5em;
+        height: 48px;
     }
 
     input {
@@ -392,7 +389,6 @@ dialog {
     input[type="checkbox"] {
         border-style: none;
         outline: none;
-        /* width: fit-content; */
     }
     input.goals-new-facto { 
         width: 50px;
@@ -401,8 +397,8 @@ dialog {
     footer {
         display: flex;
         justify-content: end;
-        column-gap: 10px;
-        padding-top: 1em;
+        column-gap: 20px;
+        padding-top: 0.5em;
         button {
             padding: 1rem;
         }
