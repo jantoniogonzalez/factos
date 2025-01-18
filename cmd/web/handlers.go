@@ -30,8 +30,6 @@ type userCreateForm struct {
 
 type factoCreateForm struct {
 	MatchId   int  `form:"matchId"`
-	LeagueId  int  `form:"leagueId"`
-	Season    int  `form:"season"`
 	GoalsHome int  `form:"goalsHome"`
 	GoalsAway int  `form:"goalsAway"`
 	ExtraTime bool `form:"extraTime"`
@@ -82,6 +80,7 @@ func (app *application) createFactos(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createFactosPost(w http.ResponseWriter, r *http.Request) {
+	// Here we could add the stuff needed...
 	var form factoCreateForm
 
 	err := app.decodePostForm(r, form)
@@ -89,10 +88,8 @@ func (app *application) createFactosPost(w http.ResponseWriter, r *http.Request)
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	// Add the rest, do we really need league? Makes queries a lot easier...
-	// Parse the path, maybe we can include the league there too
 
-	_, err = app.factos.Insert(0, 0, 0, form.GoalsHome, form.GoalsAway, 0, 0, form.ExtraTime, form.Penalties)
+	_, err = app.factos.Insert(0, form.GoalsHome, form.GoalsAway, 0, 0, form.ExtraTime, form.Penalties)
 	if err != nil {
 		app.serverError(w, err)
 		return

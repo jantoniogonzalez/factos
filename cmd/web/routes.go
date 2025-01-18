@@ -22,6 +22,7 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.viewLandingPage))
 
 	router.Handler(http.MethodGet, "/factos/view/:id", dynamic.ThenFunc(app.viewFactosById))
+	// I think we might not really need this one as it is loaded from the same page as the Tournament stuff
 	router.Handler(http.MethodGet, "/factos/create/:matchId", dynamic.ThenFunc(app.createFactos))
 	router.Handler(http.MethodPost, "/factos/create", dynamic.ThenFunc(app.createFactosPost))
 

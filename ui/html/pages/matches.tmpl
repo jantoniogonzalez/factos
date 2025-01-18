@@ -72,9 +72,7 @@
                         <label>Penalties:</label>
                         <input type="checkbox" name="penalties" />
                     </fieldset>
-                    <input type="hidden" name="matchId" value="" />
-                    <input type="hidden" name="leagueId" value="" />
-                    <input type="hidden" name="season" value="" />
+                    <input type="hidden" name="matchId" value={{ .Fixture.ID }} />
                 </form>  
                 <footer>
                     <button class="invisible cancel-close-modal">Cancel</button>
