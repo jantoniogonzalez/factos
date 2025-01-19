@@ -47,7 +47,7 @@ type Response struct {
 			Elapsed int    `json:"elapsed"`
 		} `json:"status"`
 	} `json:"fixture"`
-	League League `json:"league"`
+	League LeagueResponse `json:"league"`
 	Teams  struct {
 		Home struct {
 			ID     int    `json:"id"`
@@ -86,7 +86,7 @@ type Response struct {
 	} `json:"score"`
 }
 
-type League struct {
+type LeagueResponse struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`
 	Country string `json:"country"`
@@ -96,7 +96,7 @@ type League struct {
 	Round   string `json:"round"`
 }
 
-func GetFixtures(params map[string]string) (*FixtureResponse, error) {
+func GetFixturesRapidApi(params map[string]string) (*FixtureResponse, error) {
 	u, err := url.Parse(os.Getenv("RAPIDAPI_FOOTBALL_URL") + "/fixtures")
 	if err != nil {
 		return nil, err

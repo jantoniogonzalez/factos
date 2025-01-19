@@ -45,6 +45,7 @@ func (app *application) viewFactosById(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// We might not need this altogether
 func (app *application) createFactos(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r, false)
 
@@ -72,8 +73,6 @@ func (app *application) createFactos(w http.ResponseWriter, r *http.Request) {
 	// Pass matchId in data form
 	var form factoCreateForm
 	form.MatchId = fixture.Fixture.ID
-	form.LeagueId = fixture.League.ID
-	form.Season = fixture.League.Season
 
 	data.Form = form
 	// app.render(w, "factosModal.tmpl", data)
@@ -259,10 +258,11 @@ func (app *application) viewSignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
-	// Read postbody
-	err := r.ParseForm()
+	var form userCreateForm
+
+	err := app.decodePostForm(r, form)
+
 	if err != nil {
-		// Getting bad request if empty too...
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
