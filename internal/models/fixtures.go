@@ -4,6 +4,7 @@ import "time"
 
 type Fixture struct {
 	ID               int       `json:"id"`
+	ApiMatchId       int       `json:"apiMatchId"`
 	Date             time.Time `json:"time"`
 	LeagueId         int       `json:"leagueId"`
 	HomeGoals        int       `json:"homeGoals"`

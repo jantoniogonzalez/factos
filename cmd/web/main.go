@@ -14,7 +14,6 @@ import (
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	localDB "github.com/jantoniogonzalez/factos/internal/db"
-	"github.com/jantoniogonzalez/factos/internal/models"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -24,7 +23,7 @@ type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	factos         *localDB.FactosModel
-	users          *models.UserModel
+	users          *localDB.UserModel
 	oauthConfig    *oauth2.Config
 	sessionManager *scs.SessionManager
 	formDecoder    *form.Decoder
@@ -81,7 +80,7 @@ func main() {
 		infoLog:        infoLog,
 		oauthConfig:    conf,
 		factos:         &localDB.FactosModel{DB: db},
-		users:          &models.UserModel{DB: db},
+		users:          &localDB.UserModel{DB: db},
 		sessionManager: sessionManager,
 		formDecoder:    formDecoder,
 		cachedFiles:    cachedFiles,
