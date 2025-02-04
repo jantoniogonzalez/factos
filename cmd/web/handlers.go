@@ -53,7 +53,7 @@ func (app *application) createFactos(w http.ResponseWriter, r *http.Request) {
 	params := make(map[string]string)
 	params["id"] = path[3]
 
-	fixturesResponse, err := models.GetFixtures(params)
+	fixturesResponse, err := models.GetFixturesRapidApi(params)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -88,7 +88,7 @@ func (app *application) createFactosPost(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err = app.factos.Insert(0, form.GoalsHome, form.GoalsAway, 0, 0, form.ExtraTime, form.Penalties)
+	_, err = app.factos.InsertOne(0, form.GoalsHome, form.GoalsAway, 0, 0, form.ExtraTime, form.Penalties)
 	if err != nil {
 		app.serverError(w, err)
 		return

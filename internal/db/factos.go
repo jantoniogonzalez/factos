@@ -11,10 +11,10 @@ type FactosModel struct {
 	DB *sql.DB
 }
 
-func (m *FactosModel) Insert(matchId, goalsHome, goalsAway, result, userId int, extraTime, penalties bool) (int, error) {
+func (m *FactosModel) InsertOne(matchId, goalsHome, goalsAway, result, userId int, extraTime, penalties bool) (int, error) {
 	query := `INSERT INTO factos(matchId, goalsHome, goalsAway, lastModified,
 	created, userId, extraTime, penalties, result)
-	VALUES ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), ?, ?, ?, ?`
+	VALUES (?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), ?, ?, ?, ?);`
 
 	res, err := m.DB.Exec(query, matchId, goalsHome, goalsAway, userId, extraTime, penalties, result)
 
@@ -33,7 +33,7 @@ func (m *FactosModel) Insert(matchId, goalsHome, goalsAway, result, userId int, 
 
 func (m *FactosModel) GetById(id int) (*models.Factos, error) {
 	query := `SELECT * FROM factos
-	WHERE id=?`
+	WHERE id=?;`
 
 	row := m.DB.QueryRow(query, id)
 
@@ -53,7 +53,7 @@ func (m *FactosModel) GetById(id int) (*models.Factos, error) {
 
 func (m *FactosModel) GetByUser(userId int) ([]*models.Factos, error) {
 	query := `SELECT * FROM factos
-	WHERE userId=?`
+	WHERE userId=?;`
 
 	rows, err := m.DB.Query(query, userId)
 	if err != nil {
@@ -82,7 +82,7 @@ func (m *FactosModel) GetByUser(userId int) ([]*models.Factos, error) {
 
 func (m *FactosModel) Latest(quantity int) ([]*models.Factos, error) {
 	query := `SELECT * FROM factos
-	ORDER BY created DESC LIMIT ?`
+	ORDER BY created DESC LIMIT ?;`
 
 	rows, err := m.DB.Query(query, quantity)
 	if err != nil {
@@ -114,7 +114,7 @@ func (m *FactosModel) Edit(goalsHome, goalsAway, id, result int, extraTime, pena
 	query := `UPDATE FACTOS
 	SET goalsHome=?, goalsAway=?, lastModified=UTC_TIMESTAMP(), extraTime=?,
 	penalties=?, result=?
-	WHERE id=?`
+	WHERE id=?;`
 
 	res, err := m.DB.Exec(query, goalsHome, goalsAway, extraTime, penalties, result, id)
 
