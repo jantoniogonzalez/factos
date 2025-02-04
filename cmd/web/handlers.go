@@ -107,7 +107,7 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 	params["last"] = "10"
 	fmt.Printf("In viewTournamentResults, looking for league: %v, season: %v, last: %v\n", params["league"], params["season"], params["last"])
 
-	res, err := models.GetFixtures(params)
+	res, err := models.GetFixturesRapidApi(params)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -129,7 +129,7 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	league := &models.League{
+	league := &models.LeagueResponse{
 		ID:     id,
 		Season: season,
 	}
@@ -148,7 +148,7 @@ func (app *application) viewTournamentFutureFixtures(w http.ResponseWriter, r *h
 	params["next"] = "10"
 	fmt.Printf("In viewTournamentResults, looking for league: %v, season: %v, next: %v\n", params["league"], params["season"], params["next"])
 
-	res, err := models.GetFixtures(params)
+	res, err := models.GetFixturesRapidApi(params)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -170,7 +170,7 @@ func (app *application) viewTournamentFutureFixtures(w http.ResponseWriter, r *h
 		return
 	}
 
-	league := &models.League{
+	league := &models.LeagueResponse{
 		ID:     id,
 		Season: season,
 	}

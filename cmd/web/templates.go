@@ -15,8 +15,8 @@ import (
 type templateData struct {
 	// We need to get the fixtures and the facto too...
 	Fixtures         []*models.Response
-	PinnedLeagues    []models.League
-	League           *models.League
+	PinnedLeagues    []models.LeagueResponse
+	League           *models.LeagueResponse
 	Subnav           bool
 	LoggedIn         bool
 	LoggedInUsername string
