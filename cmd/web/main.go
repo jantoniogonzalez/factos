@@ -13,6 +13,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
+	localDB "github.com/jantoniogonzalez/factos/internal/db"
 	"github.com/jantoniogonzalez/factos/internal/models"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
@@ -22,7 +23,7 @@ import (
 type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
-	factos         *models.FactosModel
+	factos         *localDB.FactosModel
 	users          *models.UserModel
 	oauthConfig    *oauth2.Config
 	sessionManager *scs.SessionManager
@@ -79,7 +80,7 @@ func main() {
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		oauthConfig:    conf,
-		factos:         &models.FactosModel{DB: db},
+		factos:         &localDB.FactosModel{DB: db},
 		users:          &models.UserModel{DB: db},
 		sessionManager: sessionManager,
 		formDecoder:    formDecoder,
