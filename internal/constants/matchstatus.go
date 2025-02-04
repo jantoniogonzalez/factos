@@ -1,4 +1,4 @@
-package api
+package constants
 
 var MatchStatus = map[string]string{
 	"TBD":  "Scheduled",

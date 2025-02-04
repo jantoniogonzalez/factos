@@ -7,7 +7,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/jantoniogonzalez/factos/internal/api"
+	constants "github.com/jantoniogonzalez/factos/internal/constants"
 	"github.com/jantoniogonzalez/factos/internal/models"
 	"github.com/justinas/nosurf"
 )
@@ -37,7 +37,7 @@ func customClasses(classes, additionalClasses string, decider bool) string {
 }
 
 func gameStarted(status string) bool {
-	return api.MatchStatus[status] == "In Play" || api.MatchStatus[status] == "Finished"
+	return constants.MatchStatus[status] == "In Play" || constants.MatchStatus[status] == "Finished"
 }
 
 var functions = template.FuncMap{
@@ -53,7 +53,7 @@ func (app *application) newTemplateData(r *http.Request, hasSubnav bool) *templa
 		LoggedInUsername: app.sessionManager.GetString(r.Context(), "authenticatedUsername"),
 		Subnav:           hasSubnav,
 		CSRFToken:        nosurf.Token(r),
-		PinnedLeagues:    api.PinnedLeagues,
+		PinnedLeagues:    constants.PinnedLeagues,
 	}
 }
 

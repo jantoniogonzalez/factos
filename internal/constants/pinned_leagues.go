@@ -1,4 +1,4 @@
-package api
+package constants
 
 import "github.com/jantoniogonzalez/factos/internal/models"
 
