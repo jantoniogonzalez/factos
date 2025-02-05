@@ -28,13 +28,17 @@ type userCreateForm struct {
 	validator.Validator
 }
 
+// TODO: We gotta add the other fields into FactoCreateForm
 type factoCreateForm struct {
 	MatchId   int  `form:"matchId"`
-	GoalsHome int  `form:"goalsHome"`
-	GoalsAway int  `form:"goalsAway"`
+	HomeGoals int  `form:"homeGoals"`
+	AwayGoals int  `form:"awayGoals"`
 	ExtraTime bool `form:"extraTime"`
 	Penalties bool `form:"penalties"`
+	//TODO: Add a validator for the FactosCreateForm
 }
+
+// TODO: Add a fixtureCreateForm with validation
 
 func (app *application) viewLandingPage(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r, false)
@@ -90,7 +94,17 @@ func (app *application) createFactosPost(w http.ResponseWriter, r *http.Request)
 
 	userId := app.sessionManager.GetInt(r.Context(), "userId")
 
-	_, err = app.factos.InsertOne(0, form.GoalsHome, form.GoalsAway, 0, userId, form.ExtraTime, form.Penalties)
+	newFacto := &models.Factos{
+		MatchId:   form.MatchId,
+		HomeGoals: form.HomeGoals,
+		AwayGoals: form.AwayGoals,
+		UserId:    userId,
+		ExtraTime: form.ExtraTime,
+		Penalties: form.Penalties,
+	}
+	// TODO: Validate Facto
+
+	_, err = app.factos.InsertOne(newFacto)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -136,7 +150,7 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 		Season: season,
 	}
 
-	// TEST by adding
+	// TODO: Add a way to insert the results into the database, it would be the insert ignore probs?
 
 	data := app.newTemplateData(r, true)
 	data.Fixtures = res.Response

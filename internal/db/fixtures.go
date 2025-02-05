@@ -185,8 +185,7 @@ func (m *FixturesModel) GetLatestByTeamID(teamId int, limit int) ([]*models.Fixt
 func (m *FixturesModel) UpdateByID(fixture *models.Fixture) error {
 	query := `UPDATE fixtures
 	SET date=$, homeGoals=$, awayGoals=$, homePenalties=$, awayPenalties=$, homeId=$, awayId=$, lastModified=UTC_TIMESTAMP(), matchStatusShort=$ 
-	WHERE id=$
-	RETURNING lastModified;`
+	WHERE id=$;`
 
 	args := []interface{}{
 		fixture.Date,
@@ -200,14 +199,18 @@ func (m *FixturesModel) UpdateByID(fixture *models.Fixture) error {
 		fixture.ID,
 	}
 
-	return m.database.QueryRow(query, args...).Scan(&fixture.LastModified)
+	_, err := m.database.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *FixturesModel) UpdateByApiMatchID(fixture *models.Fixture) error {
 	query := `UPDATE fixtures
 	SET date=$, homeGoals=$, awayGoals=$, homePenalties=$, awayPenalties=$, homeId=$, awayId=$, lastModified=UTC_TIMESTAMP(), matchStatusShort=$ 
-	WHERE apiMatchId=$
-	RETURNING lastModified;`
+	WHERE apiMatchId=$;`
 
 	args := []interface{}{
 		fixture.Date,
@@ -221,5 +224,10 @@ func (m *FixturesModel) UpdateByApiMatchID(fixture *models.Fixture) error {
 		fixture.ApiMatchId,
 	}
 
-	return m.database.QueryRow(query, args...).Scan(&fixture.LastModified)
+	_, err := m.database.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

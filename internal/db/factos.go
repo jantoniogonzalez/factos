@@ -15,12 +15,24 @@ func NewFactosModel(database *sql.DB) *FactosModel {
 	return &FactosModel{database: database}
 }
 
-func (m *FactosModel) InsertOne(matchId, goalsHome, goalsAway, result, userId int, extraTime, penalties bool) (int, error) {
-	query := `INSERT INTO factos(matchId, goalsHome, goalsAway, lastModified,
-	created, userId, extraTime, penalties, result)
-	VALUES (?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), ?, ?, ?, ?);`
+func (m *FactosModel) InsertOne(newFacto *models.Factos) (int, error) {
+	query := `INSERT INTO factos(matchId, homeGoals, awayGoals, lastModified,
+	created, userId, extraTime, penalties, homePenalties, awayPenalties, result)
+	VALUES (?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), ?, ?, ?, ?, ?, ?);`
 
-	res, err := m.database.Exec(query, matchId, goalsHome, goalsAway, userId, extraTime, penalties, result)
+	args := []interface{}{
+		newFacto.MatchId,
+		newFacto.HomeGoals,
+		newFacto.AwayGoals,
+		newFacto.UserId,
+		newFacto.ExtraTime,
+		newFacto.Penalties,
+		newFacto.HomePenalties,
+		newFacto.AwayPenalties,
+		newFacto.Result,
+	}
+
+	res, err := m.database.Exec(query, args...)
 
 	if err != nil {
 		return 0, err
@@ -43,7 +55,7 @@ func (m *FactosModel) GetById(id int) (*models.Factos, error) {
 
 	f := &models.Factos{}
 
-	err := row.Scan(&f.Id, &f.MatchId, &f.GoalsHome, &f.GoalsAway,
+	err := row.Scan(&f.Id, &f.MatchId, &f.HomeGoals, &f.AwayGoals,
 		&f.LastModified, &f.Created, &f.Result, &f.UserId, &f.ExtraTime, &f.Penalties)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -70,7 +82,7 @@ func (m *FactosModel) GetByUser(userId int) ([]*models.Factos, error) {
 
 	for rows.Next() {
 		f := &models.Factos{}
-		if err := rows.Scan(&f.Id, &f.MatchId, &f.GoalsHome, &f.GoalsAway,
+		if err := rows.Scan(&f.Id, &f.MatchId, &f.HomeGoals, &f.AwayGoals,
 			&f.LastModified, &f.Created, &f.Result, &f.UserId, &f.ExtraTime, &f.Penalties); err != nil {
 			return nil, err
 		}
@@ -99,7 +111,7 @@ func (m *FactosModel) Latest(quantity int) ([]*models.Factos, error) {
 
 	for rows.Next() {
 		f := &models.Factos{}
-		if err := rows.Scan(&f.Id, &f.MatchId, &f.GoalsHome, &f.GoalsAway,
+		if err := rows.Scan(&f.Id, &f.MatchId, &f.HomeGoals, &f.AwayGoals,
 			&f.LastModified, &f.Created, &f.Result, &f.UserId, &f.ExtraTime, &f.Penalties); err != nil {
 			return nil, err
 		}
@@ -114,13 +126,13 @@ func (m *FactosModel) Latest(quantity int) ([]*models.Factos, error) {
 
 }
 
-func (m *FactosModel) Edit(goalsHome, goalsAway, id, result int, extraTime, penalties bool) (int, error) {
+func (m *FactosModel) Edit(homeGoals, awayGoals, id, result int, extraTime, penalties bool) (int, error) {
 	query := `UPDATE FACTOS
-	SET goalsHome=?, goalsAway=?, lastModified=UTC_TIMESTAMP(), extraTime=?,
+	SET homeGoals=?, awayGoals=?, lastModified=UTC_TIMESTAMP(), extraTime=?,
 	penalties=?, result=?
 	WHERE id=?;`
 
-	res, err := m.database.Exec(query, goalsHome, goalsAway, extraTime, penalties, result, id)
+	res, err := m.database.Exec(query, homeGoals, awayGoals, extraTime, penalties, result, id)
 
 	if err != nil {
 		return 0, err
