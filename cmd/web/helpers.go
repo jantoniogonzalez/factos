@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -63,6 +64,10 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 	}
 
 	return nil
+}
+
+func (app *application) isUserAuthenticated(ctx context.Context) bool {
+	return app.sessionManager.Exists(ctx, "authenticatedUsername") && app.sessionManager.Exists(ctx, "userId")
 }
 
 func (app *application) BeforeDate(field time.Time) bool {

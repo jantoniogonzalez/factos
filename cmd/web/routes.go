@@ -18,13 +18,14 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
 	dynamic := alice.New(addSecurityHeaders, app.sessionManager.LoadAndSave, noSurf)
+	authenticationRequired := dynamic.Append(app.requireAuthentication)
 
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.viewLandingPage))
 
 	router.Handler(http.MethodGet, "/factos/view/:id", dynamic.ThenFunc(app.viewFactosById))
 	// I think we might not really need this one as it is loaded from the same page as the Tournament stuff
 	router.Handler(http.MethodGet, "/factos/create/:matchId", dynamic.ThenFunc(app.createFactos))
-	router.Handler(http.MethodPost, "/factos/create", dynamic.ThenFunc(app.createFactosPost))
+	router.Handler(http.MethodPost, "/factos/create", authenticationRequired.ThenFunc(app.createFactosPost))
 
 	router.Handler(http.MethodGet, "/results/:tournamentId/:season", dynamic.ThenFunc(app.viewTournamentResults))
 	router.Handler(http.MethodGet, "/upcoming/:tournamentId/:season", dynamic.ThenFunc(app.viewTournamentFutureFixtures))

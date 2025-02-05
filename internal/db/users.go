@@ -17,7 +17,7 @@ func NewUserModel(database *sql.DB) *UserModel {
 	return &UserModel{database: database}
 }
 
-func (m *UserModel) Insert(username, googleId string) (int64, error) {
+func (m *UserModel) Insert(username, googleId string) (int, error) {
 	query := `INSERT INTO users (username, googleId, created)
 	VALUES (?, ?, UTC_TIMESTAMP());`
 
@@ -39,7 +39,7 @@ func (m *UserModel) Insert(username, googleId string) (int64, error) {
 		return 0, err
 	}
 
-	return id, nil
+	return int(id), nil
 }
 
 func (m *UserModel) Get(googleId string) (*models.User, error) {

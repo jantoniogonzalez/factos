@@ -88,7 +88,9 @@ func (app *application) createFactosPost(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err = app.factos.InsertOne(0, form.GoalsHome, form.GoalsAway, 0, 0, form.ExtraTime, form.Penalties)
+	userId := app.sessionManager.GetInt(r.Context(), "userId")
+
+	_, err = app.factos.InsertOne(0, form.GoalsHome, form.GoalsAway, 0, userId, form.ExtraTime, form.Penalties)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -133,6 +135,8 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 		ID:     id,
 		Season: season,
 	}
+
+	// TEST by adding
 
 	data := app.newTemplateData(r, true)
 	data.Fixtures = res.Response
@@ -290,7 +294,7 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Form is valid")
 
 	// make db calls
-	_, err = app.users.Insert(username, googleId)
+	userId, err := app.users.Insert(username, googleId)
 	if err != nil {
 		// Check if user is unique
 		if errors.Is(err, models.ErrDuplicateUsername) {
@@ -307,11 +311,13 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Remove(r.Context(), "googleId")
 	// Not displaying authenticated username
 	app.sessionManager.Put(r.Context(), "authenticatedUsername", userForm.Username)
+	app.sessionManager.Put(r.Context(), "userId", userId)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Remove(r.Context(), "authenticatedUsername")
+	app.sessionManager.Remove(r.Context(), "userId")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -49,7 +49,7 @@ var functions = template.FuncMap{
 func (app *application) newTemplateData(r *http.Request, hasSubnav bool) *templateData {
 	fmt.Printf("Is user logged in? %v\nWhat is their username? %v\n", app.sessionManager.Exists(r.Context(), "authenticatedUsername"), app.sessionManager.GetString(r.Context(), "authenticatedUsername"))
 	return &templateData{
-		LoggedIn:         app.sessionManager.Exists(r.Context(), "authenticatedUsername"),
+		LoggedIn:         app.isUserAuthenticated(r.Context()),
 		LoggedInUsername: app.sessionManager.GetString(r.Context(), "authenticatedUsername"),
 		Subnav:           hasSubnav,
 		CSRFToken:        nosurf.Token(r),
