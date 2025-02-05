@@ -10,14 +10,18 @@ import (
 )
 
 type UserModel struct {
-	DB *sql.DB
+	database *sql.DB
+}
+
+func NewUserModel(database *sql.DB) *UserModel {
+	return &UserModel{database: database}
 }
 
 func (m *UserModel) Insert(username, googleId string) (int64, error) {
 	query := `INSERT INTO users (username, googleId, created)
 	VALUES (?, ?, UTC_TIMESTAMP());`
 
-	result, err := m.DB.Exec(query, username, googleId)
+	result, err := m.database.Exec(query, username, googleId)
 
 	if err != nil {
 		var mySQLError *mysql.MySQLError
@@ -42,7 +46,7 @@ func (m *UserModel) Get(googleId string) (*models.User, error) {
 	query := `SELECT id, username, created FROM users
 	WHERE googleId=?;`
 
-	row := m.DB.QueryRow(query, googleId)
+	row := m.database.QueryRow(query, googleId)
 
 	user := &models.User{}
 

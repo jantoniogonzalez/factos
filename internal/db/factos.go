@@ -8,7 +8,11 @@ import (
 )
 
 type FactosModel struct {
-	DB *sql.DB
+	database *sql.DB
+}
+
+func NewFactosModel(database *sql.DB) *FactosModel {
+	return &FactosModel{database: database}
 }
 
 func (m *FactosModel) InsertOne(matchId, goalsHome, goalsAway, result, userId int, extraTime, penalties bool) (int, error) {
@@ -16,7 +20,7 @@ func (m *FactosModel) InsertOne(matchId, goalsHome, goalsAway, result, userId in
 	created, userId, extraTime, penalties, result)
 	VALUES (?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), ?, ?, ?, ?);`
 
-	res, err := m.DB.Exec(query, matchId, goalsHome, goalsAway, userId, extraTime, penalties, result)
+	res, err := m.database.Exec(query, matchId, goalsHome, goalsAway, userId, extraTime, penalties, result)
 
 	if err != nil {
 		return 0, err
@@ -35,7 +39,7 @@ func (m *FactosModel) GetById(id int) (*models.Factos, error) {
 	query := `SELECT * FROM factos
 	WHERE id=?;`
 
-	row := m.DB.QueryRow(query, id)
+	row := m.database.QueryRow(query, id)
 
 	f := &models.Factos{}
 
@@ -55,7 +59,7 @@ func (m *FactosModel) GetByUser(userId int) ([]*models.Factos, error) {
 	query := `SELECT * FROM factos
 	WHERE userId=?;`
 
-	rows, err := m.DB.Query(query, userId)
+	rows, err := m.database.Query(query, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +88,7 @@ func (m *FactosModel) Latest(quantity int) ([]*models.Factos, error) {
 	query := `SELECT * FROM factos
 	ORDER BY created DESC LIMIT ?;`
 
-	rows, err := m.DB.Query(query, quantity)
+	rows, err := m.database.Query(query, quantity)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +120,7 @@ func (m *FactosModel) Edit(goalsHome, goalsAway, id, result int, extraTime, pena
 	penalties=?, result=?
 	WHERE id=?;`
 
-	res, err := m.DB.Exec(query, goalsHome, goalsAway, extraTime, penalties, result, id)
+	res, err := m.database.Exec(query, goalsHome, goalsAway, extraTime, penalties, result, id)
 
 	if err != nil {
 		return 0, err

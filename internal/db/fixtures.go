@@ -11,7 +11,11 @@ import (
 )
 
 type FixturesModel struct {
-	DB *sql.DB
+	database *sql.DB
+}
+
+func NewFixturesModel(database *sql.DB) *FixturesModel {
+	return &FixturesModel{database: database}
 }
 
 func (m *FixturesModel) InsertOne(newFixture models.Fixture) (int64, error) {
@@ -26,7 +30,7 @@ func (m *FixturesModel) InsertOne(newFixture models.Fixture) (int64, error) {
 	matchStatusShort, apiMatchId)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP(), ?, ?);`
 
-	res, err := m.DB.Exec(
+	res, err := m.database.Exec(
 		query,
 		newFixture.Date,
 		newFixture.LeagueId,
@@ -72,7 +76,7 @@ func (m *FixturesModel) GetByID(fixtureId int) (*models.Fixture, error) {
 	query := `SELECT * FROM fixtures
 	WHERE id=?;`
 
-	row := m.DB.QueryRow(query, fixtureId)
+	row := m.database.QueryRow(query, fixtureId)
 
 	fixture := &models.Fixture{}
 
@@ -93,7 +97,7 @@ func (m *FixturesModel) GetByApiMatchID(apiMatchId int) (*models.Fixture, error)
 	query := `SELECT * FROM fixtures
 	WHERE apiMatchId=?;`
 
-	row := m.DB.QueryRow(query, apiMatchId)
+	row := m.database.QueryRow(query, apiMatchId)
 
 	fixture := &models.Fixture{}
 
@@ -116,7 +120,7 @@ func (m *FixturesModel) GetLatestByLeagueID(leagueId, limit int) ([]*models.Fixt
 	ORDER BY date DESC
 	LIMIT ?;`
 
-	rows, err := m.DB.Query(query, leagueId, limit)
+	rows, err := m.database.Query(query, leagueId, limit)
 
 	if err != nil {
 		return nil, err
@@ -150,7 +154,7 @@ func (m *FixturesModel) GetLatestByTeamID(teamId int, limit int) ([]*models.Fixt
 	ORDER BY date DESC
 	LIMIT ?;`
 
-	rows, err := m.DB.Query(query, teamId, teamId, limit)
+	rows, err := m.database.Query(query, teamId, teamId, limit)
 
 	if err != nil {
 		return nil, err
@@ -196,7 +200,7 @@ func (m *FixturesModel) UpdateByID(fixture *models.Fixture) error {
 		fixture.ID,
 	}
 
-	return m.DB.QueryRow(query, args...).Scan(&fixture.LastModified)
+	return m.database.QueryRow(query, args...).Scan(&fixture.LastModified)
 }
 
 func (m *FixturesModel) UpdateByApiMatchID(fixture *models.Fixture) error {
@@ -217,5 +221,5 @@ func (m *FixturesModel) UpdateByApiMatchID(fixture *models.Fixture) error {
 		fixture.ApiMatchId,
 	}
 
-	return m.DB.QueryRow(query, args...).Scan(&fixture.LastModified)
+	return m.database.QueryRow(query, args...).Scan(&fixture.LastModified)
 }

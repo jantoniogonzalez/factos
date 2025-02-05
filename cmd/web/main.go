@@ -23,6 +23,7 @@ type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	factos         *localDB.FactosModel
+	fixtures       *localDB.FixturesModel
 	users          *localDB.UserModel
 	oauthConfig    *oauth2.Config
 	sessionManager *scs.SessionManager
@@ -79,8 +80,9 @@ func main() {
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		oauthConfig:    conf,
-		factos:         &localDB.FactosModel{DB: db},
-		users:          &localDB.UserModel{DB: db},
+		factos:         localDB.NewFactosModel(db),
+		fixtures:       localDB.NewFixturesModel(db),
+		users:          localDB.NewUserModel(db),
 		sessionManager: sessionManager,
 		formDecoder:    formDecoder,
 		cachedFiles:    cachedFiles,
