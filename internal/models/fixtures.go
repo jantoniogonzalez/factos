@@ -17,10 +17,3 @@ type Fixture struct {
 	LastModified     time.Time `json:"lastModified"`
 	MatchStatusShort string    `json:"matchStatusShort"`
 }
-
-func GetFixtures(params map[string]string) (*FixtureResponse, error) {
-	// Here we would have to get the parameters and make the sql query based on that.
-	// We have to be careful of the parameters that are sent, we have to clear them to
-	// avoid a SQL injection.
-	return nil, nil
-}
