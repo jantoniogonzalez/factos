@@ -58,6 +58,7 @@ func (app *application) createFactos(w http.ResponseWriter, r *http.Request) {
 	params := make(map[string]string)
 	params["id"] = path[3]
 
+	// TODO: remove rapidapi thing
 	fixturesResponse, err := rapidapi.GetFixturesRapidApi(params)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -150,8 +151,6 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 		ID:     id,
 		Season: season,
 	}
-
-	// TODO: Add a way to insert the results into the database, it would be the insert ignore probs?
 
 	data := app.newTemplateData(r, true)
 	data.Fixtures = res.Response
