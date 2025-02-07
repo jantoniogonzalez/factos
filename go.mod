@@ -18,4 +18,5 @@ require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/robfig/cron/v3 v3.0.0 // indirect
 )
