@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/jantoniogonzalez/factos/internal/models"
+	rapidapi "github.com/jantoniogonzalez/factos/internal/rapid_api"
 	"github.com/jantoniogonzalez/factos/internal/validator"
 )
 
@@ -57,7 +58,7 @@ func (app *application) createFactos(w http.ResponseWriter, r *http.Request) {
 	params := make(map[string]string)
 	params["id"] = path[3]
 
-	fixturesResponse, err := models.GetFixturesRapidApi(params)
+	fixturesResponse, err := rapidapi.GetFixturesRapidApi(params)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -123,7 +124,7 @@ func (app *application) viewTournamentResults(w http.ResponseWriter, r *http.Req
 	params["last"] = "10"
 	fmt.Printf("In viewTournamentResults, looking for league: %v, season: %v, last: %v\n", params["league"], params["season"], params["last"])
 
-	res, err := models.GetFixturesRapidApi(params)
+	res, err := rapidapi.GetFixturesRapidApi(params)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -166,7 +167,7 @@ func (app *application) viewTournamentFutureFixtures(w http.ResponseWriter, r *h
 	params["next"] = "10"
 	fmt.Printf("In viewTournamentResults, looking for league: %v, season: %v, next: %v\n", params["league"], params["season"], params["next"])
 
-	res, err := models.GetFixturesRapidApi(params)
+	res, err := rapidapi.GetFixturesRapidApi(params)
 	if err != nil {
 		app.serverError(w, err)
 		return
