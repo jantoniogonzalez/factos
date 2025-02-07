@@ -23,6 +23,7 @@ type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	factos         *localDB.FactosModel
+	leagues        *localDB.LeaguesModel
 	fixtures       *localDB.FixturesModel
 	users          *localDB.UserModel
 	oauthConfig    *oauth2.Config
@@ -81,6 +82,7 @@ func main() {
 		infoLog:        infoLog,
 		oauthConfig:    conf,
 		factos:         localDB.NewFactosModel(db),
+		leagues:        localDB.NewLeaguesModel(db),
 		fixtures:       localDB.NewFixturesModel(db),
 		users:          localDB.NewUserModel(db),
 		sessionManager: sessionManager,
