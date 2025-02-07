@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/jantoniogonzalez/factos/internal/models"
 )
 
@@ -30,6 +32,12 @@ func (m *LeaguesModel) InsertOne(newLeague models.League) (int, error) {
 	res, err := m.database.Exec(query, args...)
 	if err != nil {
 		// TODO: Check if the error is because apiLeagueId is not unique
+		var mySQLError *mysql.MySQLError
+		if errors.As(err, &mySQLError) {
+			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "uc_apiLeagueId") {
+				return 0, models.ErrDuplicateApiLeagueId
+			}
+		}
 		return 0, err
 	}
 
