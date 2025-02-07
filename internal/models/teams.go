@@ -8,4 +8,5 @@ type Team struct {
 	Logo         string    `json:"logo"`
 	Created      time.Time `json:"created"`
 	LastModified time.Time `json:"lastModified"`
+	ApiTeamId    int       `json:"apiTeamId"`
 }

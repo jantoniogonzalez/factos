@@ -67,8 +67,13 @@ func (m *FixturesModel) InsertOne(newFixture models.Fixture) (int64, error) {
 	return id, nil
 }
 
-// TODO
-func (m *FixturesModel) InsertMultiple() (int, error) {
+// TODO: Add a method to insertMultiple
+func (m *FixturesModel) InsertMultiple(newFixtures []*models.Fixture) (int, error) {
+	return 0, nil
+}
+
+// TODO: Add a method that could be insert ignore or insert and update
+func (m *FixturesModel) InsertOrUpdateMultiple(newFixtures []*models.Fixture) (int, error) {
 	return 0, nil
 }
 
