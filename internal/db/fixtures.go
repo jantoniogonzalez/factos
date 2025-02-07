@@ -119,6 +119,7 @@ func (m *FixturesModel) GetByApiMatchID(apiMatchId int) (*models.Fixture, error)
 	return fixture, nil
 }
 
+// TODO: We may want to get the teams info rather than just getting the team ids
 func (m *FixturesModel) GetLatestByLeagueID(leagueId, limit int) ([]*models.Fixture, error) {
 	query := `SELECT * FROM fixtures
 	WHERE date<UTC_TIMESTAMP() AND leagueId=?
