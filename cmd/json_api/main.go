@@ -64,9 +64,15 @@ func main() {
 		Endpoint: google.Endpoint,
 	}
 
+	app := &application{
+		logger:          logger,
+		sessionManager:  sessionManager,
+		googleoauthconf: googleoauthconf,
+	}
+
 	srv := &http.Server{
 		Addr:         *port,
-		Handler:      newRouter(),
+		Handler:      app.routes(),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
@@ -75,12 +81,6 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	app := &application{
-		logger:          logger,
-		sessionManager:  sessionManager,
-		googleoauthconf: googleoauthconf,
 	}
 }
 
