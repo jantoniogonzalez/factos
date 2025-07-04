@@ -77,117 +77,6 @@ func (m *FixturesModel) InsertOrUpdateMultiple(newFixtures []*models.Fixture) (i
 	return 0, nil
 }
 
-func (m *FixturesModel) GetByID(fixtureId int) (*models.Fixture, error) {
-	query := `SELECT * FROM fixtures
-	WHERE id=?;`
-
-	row := m.database.QueryRow(query, fixtureId)
-
-	fixture := &models.Fixture{}
-
-	err := row.Scan(&fixture.ID, &fixture.ApiMatchId, &fixture.Date, &fixture.LeagueId, &fixture.HomeGoals, &fixture.AwayGoals,
-		&fixture.HomePenalties, &fixture.AwayPenalties, &fixture.HomeId, &fixture.AwayId, &fixture.Created, &fixture.LastModified, &fixture.MatchStatusShort)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, models.ErrNoRecord
-		}
-		return nil, err
-	}
-
-	return fixture, nil
-}
-
-func (m *FixturesModel) GetByApiMatchID(apiMatchId int) (*models.Fixture, error) {
-	query := `SELECT * FROM fixtures
-	WHERE apiMatchId=?;`
-
-	row := m.database.QueryRow(query, apiMatchId)
-
-	fixture := &models.Fixture{}
-
-	err := row.Scan(&fixture.ID, &fixture.ApiMatchId, &fixture.Date, &fixture.LeagueId, &fixture.HomeGoals, &fixture.AwayGoals,
-		&fixture.HomePenalties, &fixture.AwayPenalties, &fixture.HomeId, &fixture.AwayId, &fixture.Created, &fixture.LastModified, &fixture.MatchStatusShort)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, models.ErrNoRecord
-		}
-		return nil, err
-	}
-
-	return fixture, nil
-}
-
-// TODO: We may want to get the teams info rather than just getting the team ids
-func (m *FixturesModel) GetLatestByLeagueID(leagueId, limit int) ([]*models.Fixture, error) {
-	query := `SELECT * FROM fixtures
-	WHERE date<UTC_TIMESTAMP() AND leagueId=?
-	ORDER BY date DESC
-	LIMIT ?;`
-
-	rows, err := m.database.Query(query, leagueId, limit)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var fixtures []*models.Fixture
-
-	for rows.Next() {
-		fixture := &models.Fixture{}
-		err = rows.Scan(&fixture.ID, &fixture.ApiMatchId, &fixture.Date, &fixture.LeagueId, &fixture.HomeGoals, &fixture.AwayGoals,
-			&fixture.HomePenalties, &fixture.AwayPenalties, &fixture.HomeId, &fixture.AwayId, &fixture.Created, &fixture.LastModified, &fixture.MatchStatusShort)
-		if err != nil {
-			return nil, err
-		}
-		fixtures = append(fixtures, fixture)
-	}
-	// Called to check if there was any error with rows.Close()
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-
-	return fixtures, err
-}
-
-func (m *FixturesModel) GetLatestByTeamID(teamId int, limit int) ([]*models.Fixture, error) {
-	query := `SELECT * FROM fixtures
-	WHERE date<UTC_TIMESTAMP() AND (homeId=? OR awayId=?)
-	ORDER BY date DESC
-	LIMIT ?;`
-
-	rows, err := m.database.Query(query, teamId, teamId, limit)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var fixtures []*models.Fixture
-
-	for rows.Next() {
-		fixture := &models.Fixture{}
-		err = rows.Scan(&fixture.ID, &fixture.ApiMatchId, &fixture.Date, &fixture.LeagueId, &fixture.HomeGoals, &fixture.AwayGoals,
-			&fixture.HomePenalties, &fixture.AwayPenalties, &fixture.HomeId, &fixture.AwayId, &fixture.Created, &fixture.LastModified, &fixture.MatchStatusShort)
-		if err != nil {
-			return nil, err
-		}
-		fixtures = append(fixtures, fixture)
-	}
-	// Called to check if there was any error with rows.Close()
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-
-	return fixtures, err
-}
-
 func (m *FixturesModel) UpdateByID(fixture *models.Fixture) error {
 	query := `UPDATE fixtures
 	SET date=$, homeGoals=$, awayGoals=$, homePenalties=$, awayPenalties=$, homeId=$, awayId=$, lastModified=UTC_TIMESTAMP(), matchStatusShort=$ 
@@ -236,4 +125,34 @@ func (m *FixturesModel) UpdateByApiMatchID(fixture *models.Fixture) error {
 	}
 
 	return nil
+}
+
+func (m *FixturesModel) GetFutureByLeague(leagueId int, limit int) ([]*models.Fixture, error) {
+	query := `SELECT id, date, leagueId, homeGoals, awayGoals, homePenalties, awayPenalties, 
+              homeId, awayId, created, lastModified, matchStatusShort, apiMatchId
+    FROM fixtures
+    WHERE leagueId = ? AND date > UTC_TIMESTAMP()
+    ORDER BY date ASC
+    LIMIT ?`
+
+	rows, err := m.database.Query(query, leagueId, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var fixtures []*models.Fixture
+	for rows.Next() {
+		f := &models.Fixture{}
+		err = rows.Scan(&f.ID, &f.Date, &f.LeagueId, &f.HomeGoals, &f.AwayGoals, &f.HomePenalties,
+			&f.AwayPenalties, &f.HomeId, &f.AwayId, &f.Created, &f.LastModified, &f.MatchStatusShort, &f.ApiMatchId)
+		if err != nil {
+			return nil, err
+		}
+		fixtures = append(fixtures, f)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return fixtures, nil
 }
