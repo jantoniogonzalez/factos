@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+
+
 :root {
   font-family: FiraSansCondensed;
   font-weight: 400;
@@ -11,13 +13,15 @@
   background-color: #242424;
 
   --white:#F0EDEE;
-  --gray: #67697C;
-  --black: #242424;
-  --primary: oklch(0.205 0 0);
-  --secondary: oklch(0.97 0 0);
-  --green: #53DD6C;
-  --red: #EF2D56;
-  --gold: #FFD700;
+    --gray: #67697C;
+    --black: #000000;
+    --primary: #298cfe;
+    --secondary: #e9008b;
+    --green: #53DD6C;
+    --red: #EF2D56;
+    --gold: #FFD700;
+
+  --logo-font: FugazOne;
 
   --logo: 5rem;
   --big: 3rem;
@@ -60,6 +64,11 @@ body {
 @font-face {
   font-family: "FiraSansCondensed";
   src:local("FiraSansCondensed-Regular"),url('./assets/fonts/Fira_Sans_Condensed/FiraSansCondensed-Regular.ttf')
+}
+
+@font-face {
+  font-family: "FugazOne"; /* The name you'll use */
+  src: url('./assets/fonts/FugazOne/FugazOne-Regular.ttf'); /* Path to the font file */
 }
 
 @theme inline {
