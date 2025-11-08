@@ -1,8 +1,11 @@
 import './App.css'
+import gsap from "gsap";
+import { useGSAP } from '@gsap/react';
 import { Home } from './pages/Home/Home'
 
-function App() {
+gsap.registerPlugin(useGSAP);
 
+function App() {
   return (
     <>
       <Home />

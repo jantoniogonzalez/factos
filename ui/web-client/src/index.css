@@ -12,8 +12,9 @@
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
-  --white:#F0EDEE;
-    --gray: #67697C;
+  --white:#FFFFEE;
+  --light-gray: #cfd0d8;
+    --gray: oklab(52.593% 0.00548 -0.02939);
     --black: #000000;
     --primary: #298cfe;
     --secondary: #e9008b;
