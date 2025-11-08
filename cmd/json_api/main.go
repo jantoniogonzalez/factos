@@ -10,6 +10,7 @@ import (
 
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
+	localDB "github.com/jantoniogonzalez/factos/internal/db"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -19,6 +20,11 @@ type application struct {
 	logger          *log.Logger
 	sessionManager  *scs.SessionManager
 	googleoauthconf *oauth2.Config
+	factos          *localDB.FactosModel
+	fixtures        *localDB.FixturesModel
+	leagues         *localDB.LeaguesModel
+	teams           *localDB.TeamsModel
+	users           *localDB.UserModel
 }
 
 func main() {
@@ -64,10 +70,21 @@ func main() {
 		Endpoint: google.Endpoint,
 	}
 
+	factos := localDB.NewFactosModel(db)
+	fixtures := localDB.NewFixturesModel(db)
+	leagues := localDB.NewLeaguesModel(db)
+	teams := localDB.NewTeamsModel(db)
+	users := localDB.NewUserModel(db)
+
 	app := &application{
 		logger:          logger,
 		sessionManager:  sessionManager,
 		googleoauthconf: googleoauthconf,
+		factos:          factos,
+		fixtures:        fixtures,
+		leagues:         leagues,
+		teams:           teams,
+		users:           users,
 	}
 
 	srv := &http.Server{
@@ -77,6 +94,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
+	logger.Printf("Starting up server in port %s\n", *port)
 	err = srv.ListenAndServe()
 
 	if err != nil {
