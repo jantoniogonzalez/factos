@@ -5,9 +5,20 @@ import (
 )
 
 // * Authentication
+// The aim of the function is to send the Google URL to sign up or login
 func (app *application) auth(w http.ResponseWriter, r *http.Request) {
+	state, err := app.generateRandomState()
+	if err != nil {
+		app.serverError(w, err, "Failed to generate state")
+		return
+	}
+	app.sessionManager.Put(r.Context(), "state", state)
+	app.logger.Debug("Added state to session in auth/",
+		"state", state,
+	)
+
 	// Google url
-	url := app.googleoauthconf.AuthCodeURL("state")
+	url := app.googleoauthconf.AuthCodeURL(state)
 	app.logger.Debug("AuthCodeURL Generated",
 		"url", url,
 	)
@@ -17,11 +28,32 @@ func (app *application) auth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := app.writeJSON(w, 200, response, nil); err != nil {
-		app.serverError(w, err, "Failed to marshal to JSON")
+		app.serverError(w, err, "Failed to write to JSON")
+		return
 	}
 }
 
+// After deciding to accept or deny the sign up request, do token exchange and get info
 func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
+	url := r.URL.Query()
+	app.logger.Info("Got url query stuff",
+		"url", url,
+	)
+
+	sessionState := app.sessionManager.Get(r.Context(), "state")
+	app.logger.Debug("State in session",
+		"sessionState", sessionState,
+	)
+
+	// when rejected:  http://localhost:4000/auth/google/callback?error=access_denied&state=state
+
+	// tok, err := app.googleoauthconf.Exchange(r.Context(), "authorization-code")
+
+	// if err != nil {
+	// 	app.serverError(w, err, "Failed token exchange")
+	// }
+
+	// client := app.googleoauthconf.Client(r.Context(), tok)
 
 }
 

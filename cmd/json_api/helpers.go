@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 )
@@ -36,4 +38,14 @@ func (app *application) serverError(w http.ResponseWriter, err error, msg string
 
 func (app *application) clientError(w http.ResponseWriter) {
 
+}
+
+func (app *application) generateRandomState() (string, error) {
+	b := make([]byte, 32)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.URLEncoding.EncodeToString(b), nil
 }

@@ -96,7 +96,9 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	logger.Info("Starting up server in port: %s", *port)
+	logger.Info("Starting up server",
+		"port", *port,
+	)
 	err = srv.ListenAndServe()
 
 	if err != nil {
