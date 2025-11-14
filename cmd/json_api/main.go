@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -17,7 +18,7 @@ import (
 )
 
 type application struct {
-	logger          *log.Logger
+	logger          *slog.Logger
 	sessionManager  *scs.SessionManager
 	googleoauthconf *oauth2.Config
 	factos          *localDB.FactosModel
@@ -28,7 +29,7 @@ type application struct {
 }
 
 func main() {
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	err := godotenv.Load()
 
@@ -43,7 +44,8 @@ func main() {
 	db, err := openDB(*dsn)
 
 	if err != nil {
-		logger.Fatal(err)
+		logger.Error("Failed to open database", "error", err)
+		os.Exit(1)
 	}
 
 	defer db.Close()
@@ -94,7 +96,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	logger.Printf("Starting up server in port %s\n", *port)
+	logger.Info("Starting up server in port: %s", *port)
 	err = srv.ListenAndServe()
 
 	if err != nil {

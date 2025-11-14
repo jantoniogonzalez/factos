@@ -5,8 +5,9 @@ import (
 	"net/http"
 )
 
-func writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
 	b, err := json.Marshal(data)
+
 	if err != nil {
 		return err
 	}
@@ -22,4 +23,17 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}, headers http
 	w.Write(b)
 
 	return nil
+}
+
+func (app *application) serverError(w http.ResponseWriter, err error, msg string) {
+	app.logger.Error("Server Error",
+		"message", msg,
+		"error", err,
+	)
+
+	w.WriteHeader(http.StatusInternalServerError)
+}
+
+func (app *application) clientError(w http.ResponseWriter) {
+
 }
