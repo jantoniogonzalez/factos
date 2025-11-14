@@ -1,8 +1,17 @@
 package main
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
+
+	"github.com/jantoniogonzalez/factos/internal/models"
 )
+
+type UserInfo struct {
+	GoogleId string `json:"id"`
+	Email    string `json:"email"`
+}
 
 // * Authentication
 // The aim of the function is to send the Google URL to sign up or login
@@ -35,26 +44,98 @@ func (app *application) auth(w http.ResponseWriter, r *http.Request) {
 
 // After deciding to accept or deny the sign up request, do token exchange and get info
 func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
+	queryError := r.URL.Query().Get("error")
+	if queryError != "" {
+		app.serverError(w, nil, queryError)
+		return
+	}
+
+	reqState := r.URL.Query().Get("state")
+	if reqState == "" {
+		app.logger.Error("No state received")
+		return
+	}
+
+	sessionState := app.sessionManager.Get(r.Context(), "state")
+
+	// Either request is malicious or something went wrong
+	if sessionState != reqState {
+		app.serverError(w, nil, "State mismatch. Possible CSRF attack")
+		return
+	}
+
+	googleCode := r.URL.Query().Get("code")
+	if googleCode == "" {
+		app.logger.Error("No google code received")
+		return
+	}
+
 	url := r.URL.Query()
-	app.logger.Info("Got url query stuff",
+	// Need to check the state and the code
+	app.logger.Debug("Got url query stuff",
 		"url", url,
 	)
 
-	sessionState := app.sessionManager.Get(r.Context(), "state")
-	app.logger.Debug("State in session",
-		"sessionState", sessionState,
+	tok, err := app.googleoauthconf.Exchange(r.Context(), googleCode)
+
+	if err != nil {
+		app.serverError(w, err, "Failed token exchange")
+		return
+	}
+
+	client := app.googleoauthconf.Client(r.Context(), tok)
+
+	res, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+
+	app.logger.Debug("Response status",
+		"status", res.Status,
 	)
 
-	// when rejected:  http://localhost:4000/auth/google/callback?error=access_denied&state=state
+	app.logger.Debug("Response headers",
+		"headers", res.Header,
+	)
 
-	// tok, err := app.googleoauthconf.Exchange(r.Context(), "authorization-code")
+	if err != nil {
+		app.serverError(w, err, "Failed retrieve user information from Google api")
+		return
+	}
 
-	// if err != nil {
-	// 	app.serverError(w, err, "Failed token exchange")
-	// }
+	defer res.Body.Close()
 
-	// client := app.googleoauthconf.Client(r.Context(), tok)
+	resData, err := io.ReadAll(res.Body)
 
+	if err != nil {
+		app.serverError(w, err, "Failed to read response body")
+		return
+	}
+
+	var userInfo UserInfo
+	err = json.Unmarshal(resData, &userInfo)
+	if err != nil {
+		app.serverError(w, err, "Failed to unmarshal data")
+		return
+	}
+
+	app.logger.Debug("User Info",
+		"Google Id", userInfo.GoogleId,
+		"Email", userInfo.Email,
+	)
+
+	user, err := app.users.Get(userInfo.GoogleId)
+	if err != nil && err != models.ErrNoRecord {
+		app.serverError(w, err, "Failed DB call to Get Users")
+		return
+	}
+
+	if err == models.ErrNoRecord {
+		//Create a new user
+		app.logger.Debug("Need to create new user")
+	} else {
+		app.logger.Debug("User information from DB Get call",
+			"Id", user.Id,
+			"Username", user.Username,
+		)
+	}
 }
 
 func (app *application) viewSignUp(w http.ResponseWriter, r *http.Request) {

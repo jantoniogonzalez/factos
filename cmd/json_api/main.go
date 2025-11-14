@@ -29,7 +29,14 @@ type application struct {
 }
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logLevel := slog.LevelInfo
+	if os.Getenv("DEBUG") == "true" {
+		logLevel = slog.LevelDebug
+	}
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: logLevel,
+	}))
 
 	err := godotenv.Load()
 
@@ -99,6 +106,7 @@ func main() {
 	logger.Info("Starting up server",
 		"port", *port,
 	)
+	logger.Debug("Debug mode is on!")
 	err = srv.ListenAndServe()
 
 	if err != nil {
