@@ -2,13 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"os"
 
+	"github.com/go-playground/form/v4"
 	"github.com/jantoniogonzalez/factos/internal/api"
 	"github.com/jantoniogonzalez/factos/internal/constants"
 	"github.com/jantoniogonzalez/factos/internal/models"
+	"github.com/jantoniogonzalez/factos/internal/validator"
 )
 
 // * Authentication
@@ -184,14 +187,31 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
+	type CreateUserForm struct {
+		Username string `form:"username"`
+		GoogleId string `form:"googleId"`
+		validator.Validator
+		// I dont think we need a validator cause it will be validated in the front end
+	}
+
+	var response api.Response
+
 	err := r.ParseForm()
 	if err != nil {
 		app.serverError(w, err, "Failed to parse form")
 		return
 	}
 
-	var newUser models.User
+	var newUser CreateUserForm
 	err = app.decoder.Decode(&newUser, r.PostForm)
+
+	var invalidDecoderError *form.InvalidDecoderError
+
+	if errors.As(err, &invalidDecoderError) {
+		app.writeJSON(w, http.StatusBadRequest, response, nil)
+		return
+	}
+
 	if err != nil {
 		app.serverError(w, err, "Failed to decode post form")
 		return
@@ -200,10 +220,25 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	_, err = app.users.Insert(newUser.Username, newUser.GoogleId)
 
 	if err == models.ErrDuplicateUsername {
-
+		err = app.writeJSON(w, http.StatusConflict, response, nil)
+		if err != nil {
+			app.serverError(w, err, "Failed to writeJSON")
+		}
 		return
 	}
 
+	app.sessionManager.Put(r.Context(), "username", newUser.Username)
+
+	response = api.Response{
+		Status:  constants.StatusSuccess,
+		Message: "Sign up successful",
+	}
+
+	err = app.writeJSON(w, http.StatusCreated, response, nil)
+
+	if err != nil {
+		app.serverError(w, err, "Failed to writeJSON")
+	}
 	// googleId := app.sessionManager.Pop(r.Context(), "googleId")
 }
 

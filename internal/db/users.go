@@ -60,3 +60,22 @@ func (m *UserModel) Get(googleId string) (*models.User, error) {
 
 	return user, nil
 }
+
+func (m *UserModel) GetByUsername(username string) (*models.User, error) {
+	query := `SELECT id, username, created FROM users
+	WHERE username=?;`
+
+	row := m.database.QueryRow(query, username)
+
+	user := &models.User{}
+
+	err := row.Scan(&user.Id, &user.Username, &user.Created)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		}
+		return nil, err
+	}
+
+	return user, nil
+}
