@@ -4,18 +4,22 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 
+	"github.com/jantoniogonzalez/factos/internal/api"
+	"github.com/jantoniogonzalez/factos/internal/constants"
 	"github.com/jantoniogonzalez/factos/internal/models"
 )
-
-type UserInfo struct {
-	GoogleId string `json:"id"`
-	Email    string `json:"email"`
-}
 
 // * Authentication
 // The aim of the function is to send the Google URL to sign up or login
 func (app *application) auth(w http.ResponseWriter, r *http.Request) {
+	type ResponseData struct {
+		URL string `json:"url"`
+	}
+
+	var response api.Response
+
 	state, err := app.generateRandomState()
 	if err != nil {
 		app.serverError(w, err, "Failed to generate state")
@@ -32,8 +36,11 @@ func (app *application) auth(w http.ResponseWriter, r *http.Request) {
 		"url", url,
 	)
 
-	response := map[string]string{
-		"url": url,
+	response = api.Response{
+		Status:  constants.StatusSuccess,
+		Message: "url to google login",
+		Error:   "",
+		Data:    ResponseData{url},
 	}
 
 	if err := app.writeJSON(w, 200, response, nil); err != nil {
@@ -44,15 +51,27 @@ func (app *application) auth(w http.ResponseWriter, r *http.Request) {
 
 // After deciding to accept or deny the sign up request, do token exchange and get info
 func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
+	type UserInfo struct {
+		GoogleId string `json:"id"`
+		Email    string `json:"email"`
+	}
+
+	type ResponseData struct {
+		GoogleId string `json:"googleId"`
+		Username string `json:"username"`
+	}
+
+	var response api.Response
+
 	queryError := r.URL.Query().Get("error")
 	if queryError != "" {
-		app.serverError(w, nil, queryError)
+		app.serverError(w, api.ErrGoogleLoginFailed, queryError)
 		return
 	}
 
 	reqState := r.URL.Query().Get("state")
 	if reqState == "" {
-		app.logger.Error("No state received")
+		app.serverError(w, api.ErrReqMissingState, "Missing state in request")
 		return
 	}
 
@@ -60,21 +79,15 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 
 	// Either request is malicious or something went wrong
 	if sessionState != reqState {
-		app.serverError(w, nil, "State mismatch. Possible CSRF attack")
+		app.serverError(w, api.ErrStatesMismatch, "State mismatch. Possible CSRF attack")
 		return
 	}
 
 	googleCode := r.URL.Query().Get("code")
 	if googleCode == "" {
-		app.logger.Error("No google code received")
+		app.serverError(w, api.ErrMissingGoogleCode, "No google code present.")
 		return
 	}
-
-	url := r.URL.Query()
-	// Need to check the state and the code
-	app.logger.Debug("Got url query stuff",
-		"url", url,
-	)
 
 	tok, err := app.googleoauthconf.Exchange(r.Context(), googleCode)
 
@@ -85,7 +98,7 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 
 	client := app.googleoauthconf.Client(r.Context(), tok)
 
-	res, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	res, err := client.Get(os.Getenv("GOOGLE_API_USERINFO"))
 
 	app.logger.Debug("Response status",
 		"status", res.Status,
@@ -130,24 +143,72 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 	if err == models.ErrNoRecord {
 		//Create a new user
 		app.logger.Debug("Need to create new user")
-	} else {
-		app.logger.Debug("User information from DB Get call",
-			"Id", user.Id,
-			"Username", user.Username,
-		)
+		// Send to new user creation
+		app.sessionManager.Put(r.Context(), "googleId", userInfo.GoogleId)
+
+		response = api.Response{
+			Status:  constants.StatusRedirect,
+			Message: "New User",
+			Data: ResponseData{
+				GoogleId: userInfo.GoogleId,
+				Username: "",
+			},
+		}
+
+		err = app.writeJSON(w, http.StatusOK, response, nil)
+		if err != nil {
+			app.serverError(w, err, "Failed to write json")
+		}
+		return
+	}
+
+	app.logger.Debug("User information from DB Get call",
+		"Id", user.Id,
+		"Username", user.Username,
+	)
+
+	app.sessionManager.Put(r.Context(), "username", user.Username)
+
+	response = api.Response{
+		Status:  constants.StatusSuccess,
+		Message: "Successful user login",
+		Data: ResponseData{
+			Username: user.Username,
+		},
+	}
+
+	err = app.writeJSON(w, http.StatusOK, response, nil)
+	if err != nil {
+		app.serverError(w, err, "Failed to write json")
 	}
 }
 
-func (app *application) viewSignUp(w http.ResponseWriter, r *http.Request) {
-	// Send the user to the page where they can add a new username
-}
-
 func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
-	// Get the username and create a new account with user's email and username
+	err := r.ParseForm()
+	if err != nil {
+		app.serverError(w, err, "Failed to parse form")
+		return
+	}
+
+	var newUser models.User
+	err = app.decoder.Decode(&newUser, r.PostForm)
+	if err != nil {
+		app.serverError(w, err, "Failed to decode post form")
+		return
+	}
+
+	_, err = app.users.Insert(newUser.Username, newUser.GoogleId)
+
+	if err == models.ErrDuplicateUsername {
+
+		return
+	}
+
+	// googleId := app.sessionManager.Pop(r.Context(), "googleId")
 }
 
 func (app *application) logout(w http.ResponseWriter, r *http.Request) {
-
+	app.sessionManager.Clear(r.Context())
 }
 
 // * Factos

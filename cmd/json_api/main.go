@@ -11,6 +11,7 @@ import (
 
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-playground/form/v4"
 	localDB "github.com/jantoniogonzalez/factos/internal/db"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
@@ -21,6 +22,7 @@ type application struct {
 	logger          *slog.Logger
 	sessionManager  *scs.SessionManager
 	googleoauthconf *oauth2.Config
+	decoder         *form.Decoder
 	factos          *localDB.FactosModel
 	fixtures        *localDB.FixturesModel
 	leagues         *localDB.LeaguesModel
@@ -85,10 +87,13 @@ func main() {
 	teams := localDB.NewTeamsModel(db)
 	users := localDB.NewUserModel(db)
 
+	decoder := form.NewDecoder()
+
 	app := &application{
 		logger:          logger,
 		sessionManager:  sessionManager,
 		googleoauthconf: googleoauthconf,
+		decoder:         decoder,
 		factos:          factos,
 		fixtures:        fixtures,
 		leagues:         leagues,

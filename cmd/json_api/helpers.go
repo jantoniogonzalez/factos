@@ -5,9 +5,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
+
+	"github.com/jantoniogonzalez/factos/internal/api"
+	"github.com/jantoniogonzalez/factos/internal/constants"
 )
 
-func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data api.Response, headers http.Header) error {
 	b, err := json.Marshal(data)
 
 	if err != nil {
@@ -33,7 +36,14 @@ func (app *application) serverError(w http.ResponseWriter, err error, msg string
 		"error", err,
 	)
 
-	w.WriteHeader(http.StatusInternalServerError)
+	response := api.Response{
+		Status:  constants.StatusError,
+		Message: msg,
+		Error:   err.Error(),
+		Data:    nil,
+	}
+
+	_ = app.writeJSON(w, http.StatusInternalServerError, response, nil)
 }
 
 func (app *application) clientError(w http.ResponseWriter) {
