@@ -20,7 +20,6 @@ func (app *application) routes() *httprouter.Router {
 	router.Handler(http.MethodGet, "/authenticate", dynamic.ThenFunc(app.auth))
 	router.Handler(http.MethodGet, "/auth/google/callback", dynamic.ThenFunc(app.authCallback))
 	router.Handler(http.MethodGet, "/signup", dynamic.ThenFunc(app.signUp))
-	router.Handler(http.MethodPost, "/random", dynamic.ThenFunc(app.randomPostMethod))
 	router.Handler(http.MethodPost, "/signup", dynamic.ThenFunc(app.postSignUp))
 	router.Handler(http.MethodPost, "/logout", dynamic.ThenFunc(app.logout))
 	// *Factos

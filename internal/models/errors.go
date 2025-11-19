@@ -18,4 +18,6 @@ var (
 	ErrDuplicateUsername = errors.New("models: duplicate username")
 
 	ErrDuplicateGoogleId = errors.New("models: duplicate google account")
+
+	ErrDuplicatePrimaryKey = errors.New("models: duplicate of primary key")
 )

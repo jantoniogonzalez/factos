@@ -8,6 +8,7 @@ import (
 
 	"github.com/jantoniogonzalez/factos/internal/api"
 	"github.com/jantoniogonzalez/factos/internal/constants"
+	"github.com/jantoniogonzalez/factos/internal/models"
 )
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data api.Response, headers http.Header) error {
@@ -58,4 +59,16 @@ func (app *application) generateRandomState() (string, error) {
 	}
 
 	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+// Returns models.ErrNoRecord if user does not exists
+func (app *application) userExists(googleId string) (*models.User, error) {
+	user, err := app.users.Get(googleId)
+	if err != nil {
+		if err == models.ErrNoRecord {
+			return nil, models.ErrNoRecord
+		}
+		return nil, err
+	}
+	return user, err
 }

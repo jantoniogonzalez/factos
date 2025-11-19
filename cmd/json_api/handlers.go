@@ -14,10 +14,6 @@ import (
 	"github.com/jantoniogonzalez/factos/internal/validator"
 )
 
-func (app *application) randomPostMethod(w http.ResponseWriter, r *http.Request) {
-	app.logger.Debug("Hello from random post method")
-}
-
 // * Authentication
 // The aim of the function is to send the Google URL to sign up or login
 func (app *application) auth(w http.ResponseWriter, r *http.Request) {
@@ -141,12 +137,7 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 		"Email", userInfo.Email,
 	)
 
-	user, err := app.users.Get(userInfo.GoogleId)
-
-	if err != nil && err != models.ErrNoRecord {
-		app.serverError(w, err, "Failed DB call to Get Users")
-		return
-	}
+	user, err := app.userExists(userInfo.GoogleId)
 
 	if err == models.ErrNoRecord {
 		//Create a new user
@@ -169,12 +160,17 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err != nil {
+		app.serverError(w, err, "Failed DB call to Get Users")
+		return
+	}
+
 	app.logger.Debug("User information from DB Get call",
 		"Id", user.Id,
 		"Username", user.Username,
 	)
 
-	app.sessionManager.Put(r.Context(), "username", user.Username)
+	app.sessionManager.Put(r.Context(), "authenticatedUsername", user.Username)
 
 	response = api.Response{
 		Status:  constants.StatusSuccess,
@@ -265,6 +261,27 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 
 	_, err = app.users.Insert(newUser.Username, newUser.GoogleId)
 
+	if err == models.ErrDuplicateGoogleId || err == models.ErrDuplicatePrimaryKey {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "User already exists",
+			Error:   "User already exists",
+		}
+		err = app.sessionManager.Clear(r.Context())
+
+		if err != nil {
+			app.serverError(w, err, "Failed to clear session")
+			return
+		}
+
+		err = app.writeJSON(w, http.StatusBadRequest, response, nil)
+		if err != nil {
+			app.serverError(w, err, "Failed to writeJSON")
+		}
+
+		return
+	}
+
 	if err == models.ErrDuplicateUsername {
 		newUser.AddFieldError("username", "Username already exists")
 		response = api.Response{
@@ -281,7 +298,7 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = app.sessionManager.Pop(r.Context(), "googleId")
-	app.sessionManager.Put(r.Context(), "username", newUser.Username)
+	app.sessionManager.Put(r.Context(), "authenticatedUsername", newUser.Username)
 
 	response = api.Response{
 		Status:  constants.StatusSuccess,
@@ -302,7 +319,7 @@ func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 
 	var response api.Response
 
-	username := app.sessionManager.Pop(r.Context(), "username")
+	username := app.sessionManager.Pop(r.Context(), "authenticatedUsername")
 
 	app.logger.Debug("Username", "username", username)
 

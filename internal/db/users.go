@@ -26,9 +26,16 @@ func (m *UserModel) Insert(username, googleId string) (int, error) {
 	if err != nil {
 		var mySQLError *mysql.MySQLError
 		if errors.As(err, &mySQLError) {
-			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "uc_users_username") {
-				return 0, models.ErrDuplicateUsername
+			if mySQLError.Number == 1062 {
+				if strings.Contains(mySQLError.Message, "uc_users_username") {
+					return 0, models.ErrDuplicateUsername
+				}
+				if strings.Contains(mySQLError.Message, "us_users_googleId") {
+					return 0, models.ErrDuplicateGoogleId
+				}
+				return 0, models.ErrDuplicatePrimaryKey
 			}
+
 		}
 		return 0, err
 	}
