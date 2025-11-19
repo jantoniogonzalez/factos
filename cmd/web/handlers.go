@@ -294,9 +294,9 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 		GoogleId: googleId,
 	}
 
-	userForm.ValidateField(validator.NotEmpty(userForm.GoogleId), "googleId", "No Google account was found.\nClick on 'Sign up' to select a Google account.")
-	userForm.ValidateField(validator.NotEmpty(userForm.Username), "username", "This field cannot be blank")
-	userForm.ValidateField(validator.MaxCharacters(userForm.Username, 32), "username", "This field cannot exceed 32 characters")
+	// userForm.ValidateField(validator.NotEmpty(userForm.GoogleId), "googleId", "No Google account was found.\nClick on 'Sign up' to select a Google account.")
+	// userForm.ValidateField(validator.NotEmpty(userForm.Username), "username", "This field cannot be blank")
+	// userForm.ValidateField(validator.MaxCharacters(userForm.Username, 32), "username", "This field cannot exceed 32 characters")
 
 	if !userForm.Valid() {
 		data := app.newTemplateData(r, false)

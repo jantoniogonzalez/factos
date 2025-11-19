@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/justinas/nosurf"
@@ -26,6 +27,10 @@ func noSurf(next http.Handler) http.Handler {
 		Path:     "/",
 		Secure:   true,
 	})
+	csrfHandler.SetFailureHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Print("Failed CSRF validation")
+		w.WriteHeader(http.StatusBadRequest)
+	}))
 
 	return csrfHandler
 }

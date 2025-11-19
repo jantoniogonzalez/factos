@@ -14,6 +14,10 @@ import (
 	"github.com/jantoniogonzalez/factos/internal/validator"
 )
 
+func (app *application) randomPostMethod(w http.ResponseWriter, r *http.Request) {
+	app.logger.Debug("Hello from random post method")
+}
+
 // * Authentication
 // The aim of the function is to send the Google URL to sign up or login
 func (app *application) auth(w http.ResponseWriter, r *http.Request) {
@@ -60,8 +64,8 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type ResponseData struct {
-		GoogleId string `json:"googleId"`
-		Username string `json:"username"`
+		GoogleId string `json:"googleId,omitempty"`
+		Username string `json:"username,omitempty"`
 	}
 
 	var response api.Response
@@ -78,7 +82,7 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionState := app.sessionManager.Get(r.Context(), "state")
+	sessionState := app.sessionManager.Pop(r.Context(), "state")
 
 	// Either request is malicious or something went wrong
 	if sessionState != reqState {
@@ -138,6 +142,7 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 	)
 
 	user, err := app.users.Get(userInfo.GoogleId)
+
 	if err != nil && err != models.ErrNoRecord {
 		app.serverError(w, err, "Failed DB call to Get Users")
 		return
@@ -154,7 +159,6 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 			Message: "New User",
 			Data: ResponseData{
 				GoogleId: userInfo.GoogleId,
-				Username: "",
 			},
 		}
 
@@ -186,12 +190,19 @@ func (app *application) authCallback(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *application) signUp(w http.ResponseWriter, r *http.Request) {
+	app.logger.Debug("Received signup from Get")
+	app.writeJSON(w, http.StatusOK, api.Response{
+		Status:  constants.StatusSuccess,
+		Message: "Hola from GET /signup",
+	}, nil)
+}
+
 func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	type CreateUserForm struct {
 		Username string `form:"username"`
 		GoogleId string `form:"googleId"`
 		validator.Validator
-		// I dont think we need a validator cause it will be validated in the front end
 	}
 
 	var response api.Response
@@ -203,11 +214,16 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var newUser CreateUserForm
-	err = app.decoder.Decode(&newUser, r.PostForm)
+	err = app.decoder.Decode(&newUser, r.Form)
 
 	var invalidDecoderError *form.InvalidDecoderError
 
 	if errors.As(err, &invalidDecoderError) {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Parsing error",
+			Error:   "Form format does not match CreateUserForm",
+		}
 		app.writeJSON(w, http.StatusBadRequest, response, nil)
 		return
 	}
@@ -217,9 +233,46 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.logger.Debug("Form Received", "googleId", newUser.GoogleId, "username", newUser.Username)
+
+	// Check google id is the same
+	googleId := app.sessionManager.Get(r.Context(), "googleId")
+
+	app.logger.Debug("Current Session", "googleId", googleId)
+
+	if googleId != newUser.GoogleId {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Google Id in sent form and session do not match",
+			Error:   "Form is invalid",
+		}
+		app.writeJSON(w, http.StatusBadRequest, response, nil)
+		return
+	}
+
+	// Validate fields
+	newUser.Validator.ValidateUsername(newUser.Username)
+	if !newUser.Validator.Valid() {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Form fields are invalid for UserCreateForm",
+			Error:   "One or multiple fields are invalid",
+			Data:    newUser.Validator.FieldErrors,
+		}
+		app.writeJSON(w, http.StatusBadRequest, response, nil)
+		return
+	}
+
 	_, err = app.users.Insert(newUser.Username, newUser.GoogleId)
 
 	if err == models.ErrDuplicateUsername {
+		newUser.AddFieldError("username", "Username already exists")
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Form fields are invalid for UserCreateForm",
+			Error:   "One of multiple fields are invalid",
+			Data:    newUser.Validator.FieldErrors,
+		}
 		err = app.writeJSON(w, http.StatusConflict, response, nil)
 		if err != nil {
 			app.serverError(w, err, "Failed to writeJSON")
@@ -227,6 +280,7 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = app.sessionManager.Pop(r.Context(), "googleId")
 	app.sessionManager.Put(r.Context(), "username", newUser.Username)
 
 	response = api.Response{
@@ -239,11 +293,46 @@ func (app *application) postSignUp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err, "Failed to writeJSON")
 	}
-	// googleId := app.sessionManager.Pop(r.Context(), "googleId")
 }
 
 func (app *application) logout(w http.ResponseWriter, r *http.Request) {
-	app.sessionManager.Clear(r.Context())
+	type ResponseData struct {
+		Redirect string `json:"redirect"`
+	}
+
+	var response api.Response
+
+	username := app.sessionManager.Pop(r.Context(), "username")
+
+	app.logger.Debug("Username", "username", username)
+
+	if username == nil {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "No user found",
+		}
+		err := app.writeJSON(w, http.StatusNotModified, response, nil)
+
+		if err != nil {
+			app.serverError(w, err, "Failed to writeJSON")
+		}
+
+		return
+	}
+
+	response = api.Response{
+		Status:  constants.StatusSuccess,
+		Message: "User logged out successfully",
+		Data: ResponseData{
+			Redirect: "/",
+		},
+	}
+
+	err := app.writeJSON(w, http.StatusOK, response, nil)
+
+	if err != nil {
+		app.serverError(w, err, "Failed to writeJSON")
+	}
 }
 
 // * Factos
@@ -280,4 +369,6 @@ func (app *application) viewUpcomingFixturesbyLeagueId(w http.ResponseWriter, r 
 	// TODO: Implement this function
 }
 
-func (app *application) errorPage(w http.ResponseWriter, r *http.Request) {}
+func (app *application) errorPage(w http.ResponseWriter, r *http.Request) {
+	app.logger.Debug("Bad Request", "url", r.URL)
+}
