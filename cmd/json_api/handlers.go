@@ -378,6 +378,79 @@ func (app *application) editFacto(w http.ResponseWriter, r *http.Request) {
 	// TODO: Implement this function
 }
 
+// * Leagues
+func (app *application) createLeaguebyApiIdAndSeasonPost(w http.ResponseWriter, r *http.Request) {
+	// We gotta get the leagueid
+
+	type CreateLeagueForm struct {
+		Name        string `json:"name"`
+		ApiLeagueId int    `json:"apiLeagueId"` // Defaults to 0 if empty
+		Country     string `json:"country"`
+		Season      int    `json:"season"`
+		Logo        string `json:"logo"`
+		validator.Validator
+	}
+
+	var response api.Response
+
+	err := r.ParseForm()
+
+	if err != nil {
+		app.serverError(w, err, "Failed to ParseForm in createLeaguebyApiLeagueIdPost")
+		return
+	}
+
+	var leagueForm CreateLeagueForm
+
+	err = app.decoder.Decode(&leagueForm, r.PostForm)
+
+	var invalidDecoderError *form.InvalidDecoderError
+
+	if errors.As(err, &invalidDecoderError) {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Form does not provide expected format",
+			Error:   err.Error(),
+		}
+		err = app.writeJSON(w, http.StatusBadRequest, response, nil)
+		if err != nil {
+			app.serverError(w, err, "Failed to writeJSON")
+		}
+		return
+	}
+
+	if err != nil {
+		app.serverError(w, err, "Failed to decode form")
+		return
+	}
+
+	app.logger.Debug("Received the following CreateLeagueForm",
+		"Name", leagueForm.Name,
+		"ApiLeagueId", leagueForm.ApiLeagueId,
+		"Country", leagueForm.Country,
+		"Season", leagueForm.Season,
+		"Logo", leagueForm.Logo)
+
+	// We need to add validation here, but validate the from before putting in the league
+
+	// newLeague := &models.League{
+	// 	Name:        leagueForm.Name,
+	// 	ApiLeagueId: 0,
+	// 	Country:     leagueForm.Country,
+	// 	Season:      0,
+	// 	Logo:        leagueForm.Logo,
+	// }
+
+	response = api.Response{
+		Status:  constants.StatusSuccess,
+		Message: "Testtt",
+	}
+	app.writeJSON(w, http.StatusOK, response, nil)
+
+	//app.leagues.InsertOne(newLeague)
+}
+
+// * Fixtures
 func (app *application) viewLatestFixturesbyLeagueId(w http.ResponseWriter, r *http.Request) {
 	// TODO: Implement this function
 }

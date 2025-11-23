@@ -22,6 +22,8 @@ func (app *application) routes() *httprouter.Router {
 	router.Handler(http.MethodGet, "/signup", dynamic.ThenFunc(app.signUp))
 	router.Handler(http.MethodPost, "/signup", dynamic.ThenFunc(app.postSignUp))
 	router.Handler(http.MethodPost, "/logout", dynamic.ThenFunc(app.logout))
+	//Leagues
+	router.Handler(http.MethodPost, "/leagues/create", dynamic.ThenFunc(app.createLeaguebyApiIdAndSeasonPost))
 	// *Factos
 	// @returns: []FactosResponse
 	router.Handler(http.MethodGet, "/factos/latest/:userId", dynamic.ThenFunc(app.viewLatestFactosByUserId))

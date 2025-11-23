@@ -12,9 +12,9 @@ type Factos struct {
 	UserId        int       `json:"userId"`
 	ExtraTime     bool      `json:"extraTime"`
 	Penalties     bool      `json:"penalties"`
-	Result        int       `json:"result"`
 	HomeGoals     int       `json:"homeGoals"`
 	AwayGoals     int       `json:"awayGoals"`
 	HomePenalties int       `json:"homePenalties"`
 	AwayPenalties int       `json:"awayPenalties"`
+	Result        string    `json:"result"`
 }

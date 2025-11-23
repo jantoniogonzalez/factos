@@ -17,7 +17,7 @@ func NewLeaguesModel(database *sql.DB) *LeaguesModel {
 	return &LeaguesModel{database: database}
 }
 
-func (m *LeaguesModel) InsertOne(newLeague models.League) (int, error) {
+func (m *LeaguesModel) InsertOne(newLeague *models.League) (int, error) {
 	query := `INSERT INTO leagues (name, apiLeagueId, country, season, logo)
 	VALUES (?, ?, ?, ?, ?);`
 
@@ -75,13 +75,13 @@ func (m *LeaguesModel) GetByID(leagueId int) (*models.League, error) {
 	return league, nil
 }
 
-func (m *LeaguesModel) GetByApiLeagueID(apiLeagueId int) (*models.League, error) {
+func (m *LeaguesModel) GetByApiLeagueIDAndSeason(apiLeagueId, season int) (*models.League, error) {
 	query := `SELECT * from leagues
-	WHERE apiMatchId=?;`
+	WHERE apiMatchId=? AND season=?;`
 
 	league := &models.League{}
 
-	err := m.database.QueryRow(query, apiLeagueId).Scan(
+	err := m.database.QueryRow(query, apiLeagueId, season).Scan(
 		&league.ID,
 		&league.Name,
 		&league.ApiLeagueId,

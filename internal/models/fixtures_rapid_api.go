@@ -8,7 +8,8 @@ type FixtureResponse struct {
 	Parameters struct {
 		League string `json:"league"`
 		Season string `json:"season"`
-		Next   string `json:"next"`
+		Next   string `json:"next,omitempty"`
+		Last   string `json:"last,omitempty"`
 	} `json:"parameters"`
 	Errors  []any `json:"errors"`
 	Results int   `json:"results"`
