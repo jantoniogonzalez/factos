@@ -2,6 +2,7 @@ package rapidapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -10,12 +11,13 @@ import (
 )
 
 type FullLeaguesResponse struct {
+	Get        string `json:"get"`
 	Parameters struct {
-		Id     int `json:"id"`
-		Season int `json:"season"`
+		Id     string `json:"id"`
+		Season string `json:"season"`
 	} `json:"parameters"`
-	Errors  []any `json:"errors"`
-	Results int   `json:"results"`
+	Errors  []string `json:"errors"`
+	Results int      `json:"results"`
 	Paging  struct {
 		Current int `json:"current"`
 		Total   int `json:"total"`
@@ -49,8 +51,8 @@ type Season struct {
 	Current bool   `json:"current"`
 }
 
-func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*LeaguesResponse, error) {
-	u, err := url.Parse(os.Getenv("RAPIDAPI_FOOTBALL_URL") + "/league")
+func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*[]*LeaguesResponse, error) {
+	u, err := url.Parse(os.Getenv("RAPIDAPI_FOOTBALL_URL") + "/leagues")
 
 	if err != nil {
 		return nil, err
@@ -58,7 +60,7 @@ func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*LeaguesResponse, er
 
 	query := u.Query()
 
-	query.Add("apiLeagueId", apiLeagueId)
+	query.Add("id", apiLeagueId)
 	query.Add("season", season)
 
 	u.RawQuery = query.Encode()
@@ -94,7 +96,9 @@ func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*LeaguesResponse, er
 
 	var fullLeaguesResponse *FullLeaguesResponse
 
-	err = json.Unmarshal(body, fullLeaguesResponse)
+	fmt.Printf("Received the following response: %s\n", string(body))
+
+	err = json.Unmarshal(body, &fullLeaguesResponse)
 
 	if err != nil {
 		return nil, err
@@ -102,26 +106,26 @@ func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*LeaguesResponse, er
 
 	// Check if there are any errors
 	if len(fullLeaguesResponse.Errors) > 0 {
-		return nil, nil
+		return nil, ErrGeneric
 	}
 
-	/*
-		Now we gotta ask ourselves of how do we want to handle this API
-
-		Q: Main Goal of API?
-		A: Get a response from Rapid Api to get a League with a certain season.
-
-		Q: What do we want the process to look like?
-		A: createLeagueByX -> GetLeaguesResponse
-
-		Q: How do we know that we are creating the response that we want?
-		A: Maybe, before the post request, we have to call a get request to actually see if we are selecting the right league
-
-		Q: How strict do we want the API to be?
-
-		Q: What parts of the response do we need?
-		A: We want to know
-	*/
-
-	return nil, nil
+	return &fullLeaguesResponse.Response, nil
 }
+
+/*
+	Now we gotta ask ourselves of how do we want to handle this API
+
+	Q: Main Goal of API?
+	A: Get a response from Rapid Api to get a League with a certain season.
+
+	Q: What do we want the process to look like?
+	A: createLeagueByX -> GetLeaguesResponse
+
+	Q: How do we know that we are creating the response that we want?
+	A: Maybe, before the post request, we have to call a get request to actually see if we are selecting the right league
+
+	Q: How strict do we want the API to be?
+
+	Q: What parts of the response do we need?
+	A: We want to know
+*/

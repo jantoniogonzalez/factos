@@ -1,0 +1,5 @@
+package rapidapi
+
+func GetCall() {
+
+}

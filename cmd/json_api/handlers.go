@@ -11,6 +11,7 @@ import (
 	"github.com/jantoniogonzalez/factos/internal/api"
 	"github.com/jantoniogonzalez/factos/internal/constants"
 	"github.com/jantoniogonzalez/factos/internal/models"
+	rapidapi "github.com/jantoniogonzalez/factos/internal/rapid_api"
 	"github.com/jantoniogonzalez/factos/internal/validator"
 )
 
@@ -379,7 +380,69 @@ func (app *application) editFacto(w http.ResponseWriter, r *http.Request) {
 }
 
 // * Leagues
+func (app *application) getRapidApiLeaguesbyApiIdAndSeason(w http.ResponseWriter, r *http.Request) {
+	type ResponseData struct {
+		RapidApiResponse *[]*rapidapi.LeaguesResponse
+	}
+
+	apiLeagueId := r.URL.Query().Get("apiLeagueId")
+	season := r.URL.Query().Get("season")
+
+	var response api.Response
+
+	var err error
+
+	app.logger.Debug("Received the following from form",
+		"apiLeagueId", apiLeagueId,
+		"season", season)
+
+	if len(apiLeagueId) < 1 || len(season) < 1 {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Fields cannot be empty",
+			Error:   "Either ApiLeagueId or Season is empty blud",
+		}
+		err = app.writeJSON(w, http.StatusBadRequest, response, nil)
+		if err != nil {
+			app.serverError(w, err, "Failed to writeJSON")
+		}
+		return
+	}
+
+	apires, err := rapidapi.GetLeagueByApiIdAndSeason(apiLeagueId, season)
+
+	if err != nil {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Received error from GetLEagueByApiIdAndSeason",
+			Error:   err.Error(),
+		}
+
+		err = app.writeJSON(w, http.StatusBadRequest, response, nil)
+		if err != nil {
+			app.serverError(w, err, "Failed writeJSON")
+		}
+		return
+	}
+
+	response = api.Response{
+		Status:  constants.StatusSuccess,
+		Message: "Found the following responses",
+		Data:    ResponseData{RapidApiResponse: apires},
+	}
+
+	err = app.writeJSON(w, http.StatusOK, response, nil)
+	if err != nil {
+		app.serverError(w, err, "Failed writeJSON")
+	}
+
+}
+
 func (app *application) createLeaguebyApiIdAndSeasonPost(w http.ResponseWriter, r *http.Request) {
+	/*
+		workflow to add a league would be to look for league and then choose no?
+	*/
+
 	// We gotta get the leagueid
 
 	type CreateLeagueForm struct {
@@ -400,9 +463,9 @@ func (app *application) createLeaguebyApiIdAndSeasonPost(w http.ResponseWriter, 
 		return
 	}
 
-	var leagueForm CreateLeagueForm
+	var createLeagueForm CreateLeagueForm
 
-	err = app.decoder.Decode(&leagueForm, r.PostForm)
+	err = app.decoder.Decode(&createLeagueForm, r.PostForm)
 
 	var invalidDecoderError *form.InvalidDecoderError
 
@@ -425,20 +488,20 @@ func (app *application) createLeaguebyApiIdAndSeasonPost(w http.ResponseWriter, 
 	}
 
 	app.logger.Debug("Received the following CreateLeagueForm",
-		"Name", leagueForm.Name,
-		"ApiLeagueId", leagueForm.ApiLeagueId,
-		"Country", leagueForm.Country,
-		"Season", leagueForm.Season,
-		"Logo", leagueForm.Logo)
+		"Name", createLeagueForm.Name,
+		"ApiLeagueId", createLeagueForm.ApiLeagueId,
+		"Country", createLeagueForm.Country,
+		"Season", createLeagueForm.Season,
+		"Logo", createLeagueForm.Logo)
 
 	// We need to add validation here, but validate the from before putting in the league
 
 	// newLeague := &models.League{
-	// 	Name:        leagueForm.Name,
+	// 	Name:        createLeagueForm.Name,
 	// 	ApiLeagueId: 0,
-	// 	Country:     leagueForm.Country,
+	// 	Country:     createLeagueForm.Country,
 	// 	Season:      0,
-	// 	Logo:        leagueForm.Logo,
+	// 	Logo:        createLeagueForm.Logo,
 	// }
 
 	response = api.Response{
