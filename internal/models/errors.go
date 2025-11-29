@@ -11,7 +11,7 @@ var (
 	ErrDuplicateApiMatchId = errors.New("models: duplicate fixture with this apiMatchId")
 
 	// Leagues
-	ErrDuplicateApiLeagueId = errors.New("models: duplicate fixture with this apiLeagueId")
+	ErrDuplicateApiLeagueIdAndSeasonCombination = errors.New("models: duplicate fixture with this apiLeagueId and season combination")
 	// Teams
 	ErrDuplicateApiTeamId = errors.New("models: duplicate fixture with this apiTeamId")
 	// Users

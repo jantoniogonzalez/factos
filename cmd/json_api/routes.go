@@ -23,7 +23,7 @@ func (app *application) routes() *httprouter.Router {
 	router.Handler(http.MethodPost, "/signup", dynamic.ThenFunc(app.postSignUp))
 	router.Handler(http.MethodPost, "/logout", dynamic.ThenFunc(app.logout))
 	//Leagues
-	router.Handler(http.MethodPost, "/leagues/create", dynamic.ThenFunc(app.createLeaguebyApiIdAndSeasonPost))
+	router.Handler(http.MethodPost, "/leagues/create", dynamic.ThenFunc(app.createLeaguePost))
 	// *RapidApi
 	router.Handler(http.MethodGet, "/rapid-api/leagues", dynamic.ThenFunc(app.getRapidApiLeaguesbyApiIdAndSeason))
 	// *Factos

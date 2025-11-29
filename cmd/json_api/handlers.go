@@ -382,7 +382,7 @@ func (app *application) editFacto(w http.ResponseWriter, r *http.Request) {
 // * Leagues
 func (app *application) getRapidApiLeaguesbyApiIdAndSeason(w http.ResponseWriter, r *http.Request) {
 	type ResponseData struct {
-		RapidApiResponse *[]*rapidapi.LeaguesResponse
+		RapidApiResponse *rapidapi.FullLeaguesResponse
 	}
 
 	apiLeagueId := r.URL.Query().Get("apiLeagueId")
@@ -425,6 +425,8 @@ func (app *application) getRapidApiLeaguesbyApiIdAndSeason(w http.ResponseWriter
 		return
 	}
 
+	// CHECK ERRORS
+
 	response = api.Response{
 		Status:  constants.StatusSuccess,
 		Message: "Found the following responses",
@@ -438,16 +440,10 @@ func (app *application) getRapidApiLeaguesbyApiIdAndSeason(w http.ResponseWriter
 
 }
 
-func (app *application) createLeaguebyApiIdAndSeasonPost(w http.ResponseWriter, r *http.Request) {
-	/*
-		workflow to add a league would be to look for league and then choose no?
-	*/
-
-	// We gotta get the leagueid
-
+func (app *application) createLeaguePost(w http.ResponseWriter, r *http.Request) {
 	type CreateLeagueForm struct {
 		Name        string `json:"name"`
-		ApiLeagueId int    `json:"apiLeagueId"` // Defaults to 0 if empty
+		ApiLeagueId int    `json:"apiLeagueId"`
 		Country     string `json:"country"`
 		Season      int    `json:"season"`
 		Logo        string `json:"logo"`
@@ -494,23 +490,64 @@ func (app *application) createLeaguebyApiIdAndSeasonPost(w http.ResponseWriter, 
 		"Season", createLeagueForm.Season,
 		"Logo", createLeagueForm.Logo)
 
-	// We need to add validation here, but validate the from before putting in the league
+	// Hmmm the problem with this is that we have to remember to validate all fields, should be fine though?
+	createLeagueForm.Validator.ValidateLeagueName(createLeagueForm.Name)
+	createLeagueForm.Validator.ValidateLeagueCountry(createLeagueForm.Country)
+	createLeagueForm.Validator.ValidateLeagueLogo(createLeagueForm.Logo)
+	createLeagueForm.Validator.ValidateLeagueApiLeagueId(createLeagueForm.ApiLeagueId)
+	createLeagueForm.Validator.ValidateLeagueSeason(createLeagueForm.Season)
 
-	// newLeague := &models.League{
-	// 	Name:        createLeagueForm.Name,
-	// 	ApiLeagueId: 0,
-	// 	Country:     createLeagueForm.Country,
-	// 	Season:      0,
-	// 	Logo:        createLeagueForm.Logo,
-	// }
+	if !createLeagueForm.Validator.Valid() {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "There may be one or several field errors",
+			Error:   "Stuff",
+			Data:    createLeagueForm.Validator.FieldErrors,
+		}
+		err = app.writeJSON(w, http.StatusBadRequest, response, nil)
+		if err != nil {
+			app.serverError(w, err, "Failed writeJSON")
+		}
+		return
+	}
+
+	newLeague := &models.League{
+		Name:        createLeagueForm.Name,
+		ApiLeagueId: createLeagueForm.ApiLeagueId,
+		Country:     createLeagueForm.Country,
+		Season:      createLeagueForm.Season,
+		Logo:        createLeagueForm.Logo,
+	}
+
+	leagueId, err := app.leagues.InsertOne(newLeague)
+
+	if err != nil {
+		response = api.Response{
+			Status:  constants.StatusError,
+			Message: "Error in InsertOne",
+			Error:   err.Error(),
+		}
+
+		if errors.Is(err, models.ErrDuplicateApiLeagueIdAndSeasonCombination) {
+			response.Error = models.ErrDuplicateApiLeagueIdAndSeasonCombination.Error()
+			err = app.writeJSON(w, http.StatusBadRequest, response, nil)
+			if err != nil {
+				app.serverError(w, err, "Failed writeJSON")
+			}
+			return
+		}
+
+		app.serverError(w, err, "Failed InsertOne")
+		return
+	}
 
 	response = api.Response{
 		Status:  constants.StatusSuccess,
-		Message: "Testtt",
+		Message: "Id of inserted league",
+		Data:    leagueId,
 	}
-	app.writeJSON(w, http.StatusOK, response, nil)
 
-	//app.leagues.InsertOne(newLeague)
+	app.writeJSON(w, http.StatusOK, response, nil)
 }
 
 // * Fixtures

@@ -18,8 +18,8 @@ func NewLeaguesModel(database *sql.DB) *LeaguesModel {
 }
 
 func (m *LeaguesModel) InsertOne(newLeague *models.League) (int, error) {
-	query := `INSERT INTO leagues (name, apiLeagueId, country, season, logo)
-	VALUES (?, ?, ?, ?, ?);`
+	query := `INSERT INTO leagues (name, apiLeagueId, country, season, logo, created, lastModified)
+	VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP());`
 
 	args := []interface{}{
 		newLeague.Name,
@@ -34,8 +34,8 @@ func (m *LeaguesModel) InsertOne(newLeague *models.League) (int, error) {
 		// TODO: Check if the error is because apiLeagueId is not unique
 		var mySQLError *mysql.MySQLError
 		if errors.As(err, &mySQLError) {
-			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "uc_apiLeagueId") {
-				return 0, models.ErrDuplicateApiLeagueId
+			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "uc_apiLeagueId_season") {
+				return 0, models.ErrDuplicateApiLeagueIdAndSeasonCombination
 			}
 		}
 		return 0, err

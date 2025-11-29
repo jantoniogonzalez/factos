@@ -5,8 +5,9 @@ import (
 )
 
 type User struct {
-	Id       int
-	Username string
-	GoogleId string
-	Created  time.Time
+	Id           int       `json:"id"`
+	Username     string    `json:"username"`
+	GoogleId     string    `json:"googleId"`
+	Created      time.Time `json:"created"`
+	LastModified time.Time `json:"lastModified"`
 }

@@ -79,3 +79,8 @@ func NoTrailingSpecialCharacters(field string, fieldname FieldName) (bool, Field
 		fieldname,
 		ErrorMessage("This field cannot start or end with non-alphanumeric characters")
 }
+
+// Returns true if the field is not zero
+func NotZero(field int, fieldname FieldName) (bool, FieldName, ErrorMessage) {
+	return field != 0, fieldname, ErrorMessage("This field cannot be zero")
+}

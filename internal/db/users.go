@@ -18,8 +18,8 @@ func NewUserModel(database *sql.DB) *UserModel {
 }
 
 func (m *UserModel) Insert(username, googleId string) (int, error) {
-	query := `INSERT INTO users (username, googleId, created)
-	VALUES (?, ?, UTC_TIMESTAMP());`
+	query := `INSERT INTO users (username, googleId, created, lastModified)
+	VALUES (?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP());`
 
 	result, err := m.database.Exec(query, username, googleId)
 

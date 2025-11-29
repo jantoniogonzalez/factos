@@ -16,8 +16,8 @@ type FullLeaguesResponse struct {
 		Id     string `json:"id"`
 		Season string `json:"season"`
 	} `json:"parameters"`
-	Errors  []string `json:"errors"`
-	Results int      `json:"results"`
+	Errors  map[string]string `json:"errors"`
+	Results int               `json:"results"`
 	Paging  struct {
 		Current int `json:"current"`
 		Total   int `json:"total"`
@@ -51,7 +51,7 @@ type Season struct {
 	Current bool   `json:"current"`
 }
 
-func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*[]*LeaguesResponse, error) {
+func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*FullLeaguesResponse, error) {
 	u, err := url.Parse(os.Getenv("RAPIDAPI_FOOTBALL_URL") + "/leagues")
 
 	if err != nil {
@@ -106,10 +106,11 @@ func GetLeagueByApiIdAndSeason(apiLeagueId, season string) (*[]*LeaguesResponse,
 
 	// Check if there are any errors
 	if len(fullLeaguesResponse.Errors) > 0 {
+		// idk if we would want to create errors for this specifically? or we can let it handle
 		return nil, ErrGeneric
 	}
 
-	return &fullLeaguesResponse.Response, nil
+	return fullLeaguesResponse, nil
 }
 
 /*
